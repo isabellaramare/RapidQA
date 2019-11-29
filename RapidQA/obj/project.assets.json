@@ -153,11 +153,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\SKOLAN\\Verksamhetsförlagd Informatik\\RapidQA\\RapidQA\\RapidQA.csproj",
+      "projectUniqueName": "D:\\SKOLAN\\Verksamhetsförlagd Informatik\\RapidImagesQA\\RapidQA\\RapidQA\\RapidQA.csproj",
       "projectName": "RapidQA",
-      "projectPath": "D:\\SKOLAN\\Verksamhetsförlagd Informatik\\RapidQA\\RapidQA\\RapidQA.csproj",
+      "projectPath": "D:\\SKOLAN\\Verksamhetsförlagd Informatik\\RapidImagesQA\\RapidQA\\RapidQA\\RapidQA.csproj",
       "packagesPath": "C:\\Users\\Isabella\\.nuget\\packages\\",
-      "outputPath": "D:\\SKOLAN\\Verksamhetsförlagd Informatik\\RapidQA\\RapidQA\\obj\\",
+      "outputPath": "D:\\SKOLAN\\Verksamhetsförlagd Informatik\\RapidImagesQA\\RapidQA\\RapidQA\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

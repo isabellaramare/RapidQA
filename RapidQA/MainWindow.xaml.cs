@@ -149,40 +149,37 @@ namespace RapidQA
             // Saves the directory that was used last
             fileDirectory = new FileInfo(assets[0].Filepath).Directory.FullName;
 
-            if (layer.Image == null)
+            if (layer.Image != null)
             {
-                // Add combobox to Row
-                ComboBox combobox = new ComboBox();
-                combobox.SetValue(Grid.ColumnProperty, 3);
-                combobox.VerticalAlignment = VerticalAlignment.Center;
-                combobox.HorizontalAlignment = HorizontalAlignment.Left;
-                combobox.Margin = new Thickness(5, 0, 0, 0);
-                layer.Row.Grid.Children.Add(combobox);
-                layer.Row.ComboBox = combobox;
-                combobox.ItemsSource = assets;
-                layer.Row.ComboBox.SelectedIndex = 0;
-
-                // Adjust browse button
-                Button btn = layer.Row.Button;
-                btn.Content = "...";
-                btn.Width = 22;
-                btn.Height = 22;
-                btn.HorizontalAlignment = HorizontalAlignment.Left;
-                btn.HorizontalContentAlignment = HorizontalAlignment.Center;
-
-                layer.Row.CBVisibility.RenderTransformOrigin = new Point(3.14, 0.461);
-                layer.Row.CBVisibility.IsEnabled = true;
-                layer.Row.CBLock.IsEnabled = true;
-
-                Image image = CreateNewImage(layer);
-                layer.Image = image;
+                sp.Children.Remove(layer.Row.ComboBox); // Den försvinner inte....
+                GridImages.Children.Remove(layer.Image);
             }
-            else
-            {
-                // När man ändrar bild (trycker på browse en andra gång) så blir det problem
-                layer.Row.ComboBox.ItemsSource = assets;
-                layer.Row.ComboBox.SelectedIndex = 0;                
-            }
+
+            // Add combobox to Row
+            ComboBox combobox = new ComboBox();
+            combobox.SetValue(Grid.ColumnProperty, 3);
+            combobox.VerticalAlignment = VerticalAlignment.Center;
+            combobox.HorizontalAlignment = HorizontalAlignment.Left;
+            combobox.Margin = new Thickness(5, 0, 0, 0);
+            layer.Row.Grid.Children.Add(combobox);
+            layer.Row.ComboBox = combobox;
+            combobox.ItemsSource = assets;
+            layer.Row.ComboBox.SelectedIndex = 0;
+
+            // Adjust browse button
+            Button btn = layer.Row.Button;
+            btn.Content = "...";
+            btn.Width = 22;
+            btn.Height = 22;
+            btn.HorizontalAlignment = HorizontalAlignment.Left;
+            btn.HorizontalContentAlignment = HorizontalAlignment.Center;
+
+            layer.Row.CBVisibility.RenderTransformOrigin = new Point(3.14, 0.461);
+            layer.Row.CBVisibility.IsEnabled = true;
+            layer.Row.CBLock.IsEnabled = true;
+
+            Image image = CreateNewImage(layer);
+            layer.Image = image;
 
             LoadImages();
         }
