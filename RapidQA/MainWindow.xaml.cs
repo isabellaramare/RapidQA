@@ -39,9 +39,11 @@ namespace RapidQA
 
         // HIGH PRIORITY
         // use Alpha channel to select/move layers https://stackoverflow.com/questions/2250965/wpf-cursor-on-a-partially-transparent-image
+        // OR layer must be selected to be moved
         // save an image (whith all visible layers)
         // size of displayed images
         // Zoom from ImUI
+        // config file for automatic image-to-layer distribution
 
         // EXTRAS
         // ability to move a layer with arrows
@@ -49,7 +51,7 @@ namespace RapidQA
         // rename layers
         // custom made button design (eye for visibility, padlock for locking)
 
-        // Making changes, blablabla        
+               
 
 
         public MainWindow()
@@ -64,7 +66,7 @@ namespace RapidQA
             BtnGray.Click += BtnGray_Click;
             BtnBlack.Click += BtnBlack_Click;
 
-            //sp.MouseMove += Sp_MouseMove;
+            sp.MouseMove += Sp_MouseMove;
             sp.MouseLeftButtonDown += Sp_MouseLeftButtonDown;
             sp.MouseLeftButtonUp += Sp_MouseLeftButtonUp;
             sp.DragEnter += Sp_DragEnter;
@@ -83,12 +85,8 @@ namespace RapidQA
                 CheckBox vis = layer.Row.CBVisibility;
                 CheckBox lo = layer.Row.CBLock;
 
-                //grid.MouseEnter += delegate (object sender, MouseEventArgs e) { Row_MouseEnter(sender, e, layer); };
-                //grid.MouseLeave += delegate (object sender, MouseEventArgs e) { Row_MouseLeave(sender, e, layer); };
-                //grid.MouseDown += delegate (object sender, MouseButtonEventArgs e) { Row_MouseDown(sender, e, layer); };
-
-                //grid.MouseEnter += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseEnter(sender, e, grid); };
-                //grid.MouseLeave += RowMoveArea_MouseLeave;
+                grid.MouseMove += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseMove(sender, e, layer); };
+                grid.MouseLeave += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseLeave(sender, e, layer); };
 
                 cb.SelectionChanged += delegate (object sender, SelectionChangedEventArgs e) { Cbx_SelectionChanged(sender, e, layer); };
                 lo.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Lock_Click(sender, e, layer); };
@@ -96,19 +94,18 @@ namespace RapidQA
             }
         }
 
-        private void RowMoveArea_MouseLeave(object sender, MouseEventArgs e)
+        private void RowMoveArea_MouseLeave(object sender, MouseEventArgs e, Layer layer)
         {
             Cursor = Cursors.Arrow;
-        }
+            layer.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
+        }     
 
-
-        // Only works when the cursor comes from outside the row (thats the only time the event is called)
-        private void RowMoveArea_MouseEnter(object sender, MouseEventArgs e, Grid grid)
+        private void RowMoveArea_MouseMove(object sender, MouseEventArgs e, Layer layer)
         {
-            double x = e.GetPosition(grid).X;
+            double x = e.GetPosition(layer.Row.Grid).X;
             double start = 0.0;
             int column = 0;
-            foreach (ColumnDefinition cd in grid.ColumnDefinitions)
+            foreach (ColumnDefinition cd in layer.Row.Grid.ColumnDefinitions)
             {
                 start += cd.ActualWidth;
                 if (x < start)
@@ -117,7 +114,20 @@ namespace RapidQA
                 }
                 column++;
             }
-            if (column == 0) Cursor = Cursors.Hand;
+            if (column == 0)
+            {
+                Cursor = Cursors.Hand;
+                //layer.IsSelected = true;
+                layer.Row.Grid.Background = new LinearGradientBrush(Colors.Gray, Color.FromArgb(100, 221, 221, 221), new Point(0, 0), new Point(1, 1));
+                //SetGridBackground(layer);                                         
+            }
+            if (column != 0 && !movingRow.IsSelected) 
+            {
+                Cursor = Cursors.Arrow;
+                //layer.IsSelected = false;
+                layer.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
+                //SetGridBackground(layer);
+            }
         }
 
         private void Btn_SelectImages_Click(object sender, RoutedEventArgs e, Layer layer)
@@ -204,16 +214,16 @@ namespace RapidQA
             Image image = new Image();
             var uriSource = new Uri(selectedAsset.Filepath);
             image.Source = new BitmapImage(uriSource);
-            //image.Stretch = Stretch.Uniform;                        
+            //image.Stretch = Stretch.None;                        
 
             GridImages.Children.Add(image);
 
             //image.MouseEnter += LayerImage_MouseEnter;
-            //image.MouseLeave += LayerImage_MouseLeave;
+            image.MouseLeave += LayerImage_MouseLeave;
 
-            //image.MouseUp += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseUp(sender, e, newLayer); };
-            //image.MouseDown += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseDown(sender, e, newLayer); };
-            //image.MouseMove += delegate (object sender, MouseEventArgs e) { LayerImage_MouseMove(sender, e, newLayer); };
+            image.MouseUp += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseUp(sender, e, newLayer); };
+            image.MouseDown += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseDown(sender, e, newLayer); };
+            image.MouseMove += delegate (object sender, MouseEventArgs e) { LayerImage_MouseMove(sender, e, newLayer); };
 
             return image;
         }
@@ -252,45 +262,6 @@ namespace RapidQA
             if (!(bool)cb.IsChecked) layer.Image.Visibility = Visibility.Collapsed;
         }
 
-        // Not used at the moment
-        #region ROW CONTROLS
-        private void Row_MouseDown(object sender, MouseButtonEventArgs e, Layer layer)
-        {
-            List<Grid> rows = new List<Grid>();
-
-            foreach (var l in layers)
-            {
-                rows.Add(l.Row.Grid);
-            }
-
-            foreach (Grid row in rows)
-            {
-                if (((SolidColorBrush)row.Background).Color == Colors.LightGray)
-                {
-                    row.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
-                    row.Tag = "not active";
-                }
-            }
-
-            layer.Row.Grid.Background = new SolidColorBrush(Colors.LightGray);
-            layer.Row.Grid.Tag = "active";
-        }
-
-        private void Row_MouseLeave(object sender, MouseEventArgs e, Layer layer)
-        {
-            //if ((string)layer.Row.Grid.Tag == "active") return;
-            Cursor = Cursors.Arrow;
-            layer.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
-        }
-
-        private void Row_MouseEnter(object sender, MouseEventArgs e, Layer layer)
-        {
-            Cursor = Cursors.Hand;
-            layer.Row.Grid.Background = new SolidColorBrush(Colors.LightGray);
-        }
-
-        #endregion
-
         #region LAYER MOVING
         private void LayerImage_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -309,11 +280,11 @@ namespace RapidQA
                 if (l.Image != null) l.Image.IsHitTestVisible = false;
             }
 
-            var point = e.GetPosition(layer.Image);
-            CheckPixelTransparencey(layer.Image, point);
+            //var point = e.GetPosition(layer.Image);
+            //CheckPixelTransparencey(layer.Image, point);
 
-            if (isOpaque)
-            {
+            //if (isOpaque)
+            //{
                 if (layer.ImagePosition == null)
                     layer.ImagePosition = layer.Image.TransformToAncestor(GridImages).Transform(new Point(0, 0));
                 var mousePosition = Mouse.GetPosition(GridImages);
@@ -322,9 +293,9 @@ namespace RapidQA
                 layer.IsMoving = true;
 
                 layer.Image.IsHitTestVisible = true;
-            }
+            //}
 
-            else return;
+            //else return;
             
         }
 
@@ -366,26 +337,27 @@ namespace RapidQA
 
         private void LayerImage_MouseMove(object sender, MouseEventArgs e, Layer layer)
         {
+            Cursor = Cursors.Hand;
             //if (layer.Image == null) return;
             if (!layer.IsMoving) return;
             if (layer.IsLocked) return;
 
-            var point = e.GetPosition(layer.Image);
+            //var point = e.GetPosition(layer.Image);
 
-            CheckPixelTransparencey(layer.Image, point);
+            //CheckPixelTransparencey(layer.Image, point);
 
-            if (isOpaque)
-            {
-                Cursor = Cursors.Hand;
+            //if (isOpaque)
+            //{
+               
                 var mousePoint = Mouse.GetPosition(GridImages);
 
                 var offsetX = (layer.CurrentTT == null ? layer.ImagePosition.Value.X : layer.ImagePosition.Value.X - layer.CurrentTT.X) + layer.DeltaX - mousePoint.X;
                 var offsetY = (layer.CurrentTT == null ? layer.ImagePosition.Value.Y : layer.ImagePosition.Value.Y - layer.CurrentTT.Y) + layer.DeltaY - mousePoint.Y;
 
                 layer.Image.RenderTransform = new TranslateTransform(-offsetX, -offsetY);
-            }
+            //}
 
-            else { Cursor = Cursors.Arrow; }
+            //else { Cursor = Cursors.Arrow; }
         }
 
         #endregion
@@ -394,6 +366,37 @@ namespace RapidQA
         private void Sp_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.Source is Grid)
+            {               
+                movingRow.Row.IsDown = true;            
+                movingRow.Row.StartPoint = e.GetPosition(sp);
+
+                foreach (var child in sp.Children)
+                {
+                    if (child is Grid grid)
+                    {
+                        grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
+                    }
+                }
+                movingRow.IsSelected = true;
+                movingRow.Row.Grid.Background = new LinearGradientBrush(Colors.Gray, Color.FromArgb(100, 221, 221, 221), new Point(0, 0), new Point(1, 1)); // Background dark             
+            }
+            else return;
+        }
+
+        private void Sp_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.Source is Grid)
+            {
+                movingRow.Row.IsDown = false;
+                movingRow.Row.IsDragging = false;
+                movingRow.Row.Grid.ReleaseMouseCapture(); // error occurs if you drag an image "onto" sp and release it  
+            }
+            else return;
+        }
+
+        private void Sp_MouseMove(object sender, MouseEventArgs e)
+        {            
+            if (e.Source is Grid)
             {
                 foreach (var layer in layers)
                 {
@@ -401,24 +404,11 @@ namespace RapidQA
                     {
                         movingRow = layer;
                     }
-                }
-
-                movingRow.Row.IsDown = true;
-                movingRow.Row.StartPoint = e.GetPosition(sp);
+                }               
             }
-
             else return;
-        }
 
-        private void Sp_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            movingRow.Row.IsDown = false;
-            movingRow.Row.IsDragging = false;
-            movingRow.Row.Grid.ReleaseMouseCapture();
-        }
-
-        private void Sp_MouseMove(object sender, MouseEventArgs e)
-        {
+            // Drag and drop
             if (movingRow.Row.IsDown)
             {
                 if ((movingRow.Row.IsDragging == false) && ((Math.Abs(e.GetPosition(sp).X - movingRow.Row.StartPoint.X) > SystemParameters.MinimumHorizontalDragDistance) ||
@@ -426,14 +416,14 @@ namespace RapidQA
                 {
                     movingRow.Row.IsDragging = true;
                     movingRow.Row.Grid.CaptureMouse();
-                    DragDrop.DoDragDrop(_dummyDragSource, new DataObject("Row", movingRow.Row.Grid, true), DragDropEffects.Move);
+                    DragDrop.DoDragDrop(_dummyDragSource, new DataObject("UIElement", movingRow.Row.Grid, true), DragDropEffects.Move);
                 }
             }
         }
 
         private void Sp_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent("Row"))
+            if (e.Data.GetDataPresent("UIElement"))
             {
                 e.Effects = DragDropEffects.Move;
             }
@@ -441,7 +431,7 @@ namespace RapidQA
 
         private void Sp_Drop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent("Row"))
+            if (e.Data.GetDataPresent("UIElement"))
             {
                 UIElement droptarget = e.Source as UIElement;
                 int droptargetIndex = -1, i = 0;

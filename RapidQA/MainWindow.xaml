@@ -26,7 +26,7 @@
             </StackPanel>
             <ScrollViewer  Grid.Row="1">
                 <StackPanel x:Name="sp" Margin="10" Background="White" AllowDrop="True">
-                    <!--This is where the Rows go-->
+                    <!--This is where the Rows go-->                    
                 </StackPanel>
             </ScrollViewer>
 

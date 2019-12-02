@@ -13,6 +13,7 @@ namespace RapidQA
         public string Name { get; set; }
         public bool IsMoving { get; set; }
         public bool IsLocked { get; set; }
+        public bool IsSelected { get; set; }
         public Point? ImagePosition { get; set; }
         public double DeltaX { get; set; }
         public double DeltaY { get; set; }

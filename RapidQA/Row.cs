@@ -70,7 +70,7 @@ namespace RapidQA
             }
 
             grid.RowDefinitions.Add(new RowDefinition());
-            grid.Margin = new Thickness(5);
+            grid.Margin = new Thickness(0, 5, 0, 5);
             grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
 
             int numberOfLayers = layerCount;
