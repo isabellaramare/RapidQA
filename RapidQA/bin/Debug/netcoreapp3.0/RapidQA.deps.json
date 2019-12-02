@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v3.0": {
       "RapidQA/1.0.0": {
         "dependencies": {
+          "ImUI": "1.0.0",
           "System.Drawing.Common": "4.6.1"
         },
         "runtime": {
@@ -39,6 +40,22 @@
             "fileVersion": "4.700.19.51609"
           }
         }
+      },
+      "ImUI/1.0.0": {
+        "dependencies": {
+          "ImSystem": "1.0.0.0"
+        },
+        "runtime": {
+          "ImUI.dll": {}
+        }
+      },
+      "ImSystem.Reference/1.0.0.0": {
+        "runtime": {
+          "ImSystem.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -68,6 +85,16 @@
       "sha512": "sha512-TFAADvBEUhdDb2Lteq/BUeG0J1y7a0GyFdpB8yE/eAcbiN0R5MII1nXExXsrtRZiO8C/L9SozL2wGqkRlhiv6A==",
       "path": "system.drawing.common/4.6.1",
       "hashPath": "system.drawing.common.4.6.1.nupkg.sha512"
+    },
+    "ImUI/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ImSystem.Reference/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

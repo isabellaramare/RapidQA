@@ -10,4 +10,8 @@
     <PackageReference Include="System.Drawing.Common" Version="4.6.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Apps\ImUI\ImUI.csproj" />
+  </ItemGroup>
+
 </Project>

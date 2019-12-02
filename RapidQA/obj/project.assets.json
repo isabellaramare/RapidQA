@@ -51,6 +51,15 @@
             "rid": "win"
           }
         }
+      },
+      "ImUI/1.0.0": {
+        "type": "project",
+        "compile": {
+          "bin/placeholder/ImUI.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ImUI.dll": {}
+        }
       }
     }
   },
@@ -139,10 +148,16 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "ImUI/1.0.0": {
+      "type": "project",
+      "path": "../../Apps/ImUI/ImUI.csproj",
+      "msbuildProject": "../../Apps/ImUI/ImUI.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.0": [
+      "ImUI >= 1.0.0",
       "System.Drawing.Common >= 4.6.1"
     ]
   },
@@ -171,7 +186,11 @@
       },
       "frameworks": {
         "netcoreapp3.0": {
-          "projectReferences": {}
+          "projectReferences": {
+            "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj": {
+              "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

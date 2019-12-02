@@ -55,3 +55,7 @@ D:\SKOLAN\Verksamhetsförlagd Informatik\RapidImagesQA\RapidQA\RapidQA\obj\Debug
 \\shared-fs1\transfer\Isabella\RapidQA\RapidQA\obj\Debug\netcoreapp3.0\RapidQA.csproj.CopyComplete
 \\shared-fs1\transfer\Isabella\RapidQA\RapidQA\obj\Debug\netcoreapp3.0\RapidQA.dll
 \\shared-fs1\transfer\Isabella\RapidQA\RapidQA\obj\Debug\netcoreapp3.0\RapidQA.pdb
+\\shared-fs1\transfer\Isabella\RapidQA\RapidQA\bin\Debug\netcoreapp3.0\ImUI.dll
+\\shared-fs1\transfer\Isabella\RapidQA\RapidQA\bin\Debug\netcoreapp3.0\ImSystem.dll
+\\shared-fs1\transfer\Isabella\RapidQA\RapidQA\bin\Debug\netcoreapp3.0\ImUI.pdb
+\\shared-fs1\transfer\Isabella\RapidQA\RapidQA\bin\Debug\netcoreapp3.0\ImSystem.pdb

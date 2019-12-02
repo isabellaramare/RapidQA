@@ -4,6 +4,17 @@
     "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj": {}
   },
   "projects": {
+    "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj",
+        "projectName": "ImUI",
+        "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj"
+      },
+      "frameworks": {
+        "net46": {}
+      }
+    },
     "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -26,7 +37,11 @@
         },
         "frameworks": {
           "netcoreapp3.0": {
-            "projectReferences": {}
+            "projectReferences": {
+              "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj": {
+                "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
