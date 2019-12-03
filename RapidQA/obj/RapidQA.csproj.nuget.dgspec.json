@@ -1,28 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj": {}
+    "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj": {}
   },
   "projects": {
-    "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj": {
+    "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj",
-        "projectName": "ImUI",
-        "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj"
-      },
-      "frameworks": {
-        "net46": {}
-      }
-    },
-    "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj",
+        "projectUniqueName": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj",
         "projectName": "RapidQA",
-        "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj",
+        "projectPath": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj",
         "packagesPath": "C:\\Users\\isabella.ramare\\.nuget\\packages\\",
-        "outputPath": "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\obj\\",
+        "outputPath": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\isabella.ramare\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -78,6 +67,17 @@
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
         }
+      }
+    },
+    "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj",
+        "projectName": "ImUI",
+        "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj"
+      },
+      "frameworks": {
+        "net46": {}
       }
     }
   }

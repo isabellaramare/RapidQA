@@ -16,9 +16,9 @@
             <!--Layers-->
             <zoom:ZoomControl x:Name="Zoom" AllowDrop="True" Background="#FF4B4B4B" VerticalAlignment="Top">
                 <Grid x:Name="ImageGrid">
-                    <Canvas x:Name="ImageCanvas">
+                    <!--<Canvas x:Name="ImageCanvas">-->
                         <Image x:Name="ZoomImage" VerticalAlignment="Top" HorizontalAlignment="Left" Stretch="None"/>
-                    </Canvas>
+                    <!--</Canvas>-->
                 </Grid>
             </zoom:ZoomControl>
             <Border Background="#FF343434" BorderThickness="0" Grid.Column="4" Height="30" HorizontalAlignment="Left" Margin="15,0,0,12" x:Name="border2" VerticalAlignment="Bottom" Width="214" CornerRadius="10" BorderBrush="#FF343434" Grid.Row="1">

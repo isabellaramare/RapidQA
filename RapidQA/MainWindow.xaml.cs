@@ -50,9 +50,6 @@ namespace RapidQA
         // rename layers
         // custom made button design (eye for visibility, padlock for locking)
 
-               
-
-
         public MainWindow()
         {
             InitializeComponent();
@@ -89,7 +86,7 @@ namespace RapidQA
 
                 grid.MouseMove += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseMove(sender, e, layer); };
                 grid.MouseLeave += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseLeave(sender, e, layer); };
-                //grid.MouseRightButtonDown += delegate (object sender, MouseButtonEventArgs e) { RowMoveArea_MouseRightButtonDown(sender, e, layer); };                                        
+                grid.MouseRightButtonDown += delegate (object sender, MouseButtonEventArgs e) { RowMoveArea_MouseRightButtonDown(sender, e, layer); };                                        
 
                 cb.SelectionChanged += delegate (object sender, SelectionChangedEventArgs e) { Cbx_SelectionChanged(sender, e, layer); };
                 lo.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Lock_Click(sender, e, layer); };
@@ -175,38 +172,36 @@ namespace RapidQA
 
             if (layer.Image != null)
             {
-                sp.Children.Remove(layer.Row.ComboBox); // Den försvinner inte...?
-                GridImages.Children.Remove(layer.Image);
+                sp.Children.Remove(layer.Row.ComboBox);                                      
+            }
+           
+                // Add combobox to Row
+                ComboBox combobox = new ComboBox();
+                combobox.SetValue(Grid.ColumnProperty, 3);
+                combobox.VerticalAlignment = VerticalAlignment.Center;
+                combobox.HorizontalAlignment = HorizontalAlignment.Left;
+                combobox.Margin = new Thickness(5, 0, 0, 0);
+                layer.Row.Grid.Children.Add(combobox);
+                layer.Row.ComboBox = combobox;
+                combobox.ItemsSource = assets;
+                layer.Row.ComboBox.SelectedIndex = 0;
+
+            if (layer.Image == null)
+            {
+                // Adjust browse button
+                Button btn = layer.Row.Button;
+                btn.Content = "...";
+                btn.Width = 22;
+                btn.Height = 22;
+                btn.HorizontalAlignment = HorizontalAlignment.Left;
+                btn.HorizontalContentAlignment = HorizontalAlignment.Center;
+
+                layer.Row.CBVisibility.RenderTransformOrigin = new Point(3.14, 0.461);
+                layer.Row.CBVisibility.IsEnabled = true;
+                layer.Row.CBLock.IsEnabled = true;
             }
 
-
-            // Detta borde bara göras när raden skapas (inte när man ändrar bilder)
-
-            // Add combobox to Row
-            ComboBox combobox = new ComboBox();
-            combobox.SetValue(Grid.ColumnProperty, 3);
-            combobox.VerticalAlignment = VerticalAlignment.Center;
-            combobox.HorizontalAlignment = HorizontalAlignment.Left;
-            combobox.Margin = new Thickness(5, 0, 0, 0);
-            layer.Row.Grid.Children.Add(combobox);
-            layer.Row.ComboBox = combobox;
-            combobox.ItemsSource = assets;
-            layer.Row.ComboBox.SelectedIndex = 0;
-
-            // Adjust browse button
-            Button btn = layer.Row.Button;
-            btn.Content = "...";
-            btn.Width = 22;
-            btn.Height = 22;
-            btn.HorizontalAlignment = HorizontalAlignment.Left;
-            btn.HorizontalContentAlignment = HorizontalAlignment.Center;
-
-            layer.Row.CBVisibility.RenderTransformOrigin = new Point(3.14, 0.461);
-            layer.Row.CBVisibility.IsEnabled = true;
-            layer.Row.CBLock.IsEnabled = true;
-
-            layer.Image = AddNewImage(layer);
-
+            AddNewImage(layer);
             LoadImages();
         }
 
@@ -222,30 +217,32 @@ namespace RapidQA
             LoadImages();
         }
 
-        private Image AddNewImage(Layer newLayer)
+        private void AddNewImage(Layer layer)
         {
-            Asset selectedAsset = (Asset)newLayer.Row.ComboBox.SelectedItem;
-            newLayer.Asset = selectedAsset;
+
+            if (layer.Image != null) ImageGrid.Children.Remove(layer.Image);
+
+            Asset selectedAsset = (Asset)layer.Row.ComboBox.SelectedItem;
+            layer.Asset = selectedAsset;
 
             Image image = new Image();
             var uriSource = new Uri(selectedAsset.Filepath);
-            image.Source = new BitmapImage(uriSource);         
-            
-            ImageCanvas.Children.Add(image);
+            image.Source = new BitmapImage(uriSource);
+
+            ImageGrid.Children.Add(image);
             ImageGrid.Width = image.Source.Width;
             ImageGrid.Height = image.Source.Height;
 
-            //image.MouseEnter += LayerImage_MouseEnter;
-            //image.MouseLeave += LayerImage_MouseLeave;
+            image.MouseEnter += LayerImage_MouseEnter;
+            image.MouseLeave += delegate (object sender, MouseEventArgs e) { LayerImage_MouseLeave(sender, e, layer); };                
 
-            //image.MouseUp += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseUp(sender, e, newLayer); };
-            //image.MouseDown += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseDown(sender, e, newLayer); };
-            //image.MouseMove += delegate (object sender, MouseEventArgs e) { LayerImage_MouseMove(sender, e, newLayer); };
+            image.MouseUp += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseUp(sender, e, layer); };
+            image.MouseDown += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseDown(sender, e, layer); };
+            image.MouseMove += delegate (object sender, MouseEventArgs e) { LayerImage_MouseMove(sender, e, layer); };
 
-            return image;
+            layer.Image = image;
         }
 
-        // Sparar just nu en bild på en "row"
         private void BtnComposite_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
@@ -262,12 +259,14 @@ namespace RapidQA
 
             if (dialog.ShowDialog().Value)
             {
-                System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(layers[0].Row.Grid)); // OBS!
+                System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(ImageGrid)); // Catch exception when there is no image (also, only saves layer 0)
+                // Tar inte hänsyn till Zoom
 
                 image.Save(dialog.FileName);
             }
         }
 
+        // Om man använder den här kanske den tar hänsyn till zoom? - Nej
         private RenderTargetBitmap GridToRenderTargetBitmap(Grid grid)
         {
             Transform transform = grid.LayoutTransform;
@@ -451,16 +450,15 @@ namespace RapidQA
             return (byte)(((double)d / max) * 255.0);
         }
 
-        private void ChangeImageFilePath(Layer layer)
+        private void ChangeComboBoxItemsSource(Layer layer, List<Asset> assets)
         {
-            Asset selectedAsset = (Asset)layer.Row.ComboBox.SelectedItem;
-            var uriSource = new Uri(selectedAsset.Filepath);
-            layer.Image.Source = new BitmapImage(uriSource);
+            layer.Row.ComboBox.ItemsSource = assets;
+            layer.Asset = (Asset)layer.Row.ComboBox.SelectedItem;            
         }
 
         private void Cbx_SelectionChanged(object sender, SelectionChangedEventArgs e, Layer layer)
         {
-            ChangeImageFilePath(layer);
+            AddNewImage(layer);
             SetLayerVisibility(layer);
         }
 
@@ -490,9 +488,10 @@ namespace RapidQA
             Cursor = Cursors.Hand;
         }
 
-        private void LayerImage_MouseLeave(object sender, MouseEventArgs e)
+        private void LayerImage_MouseLeave(object sender, MouseEventArgs e, Layer layer)
         {
             Cursor = Cursors.Arrow;
+            LayerImage_MouseUp(null, null, layer);
         }
 
         private void LayerImage_MouseDown(object sender, MouseButtonEventArgs e, Layer layer)
@@ -508,8 +507,8 @@ namespace RapidQA
             //if (isOpaque)
             //{
                 if (layer.ImagePosition == null)
-                    layer.ImagePosition = layer.Image.TransformToAncestor(GridImages).Transform(new Point(0, 0));
-                var mousePosition = Mouse.GetPosition(GridImages);
+                    layer.ImagePosition = layer.Image.TransformToAncestor(ImageGrid).Transform(new Point(0, 0));
+                var mousePosition = Mouse.GetPosition(ImageGrid);
                 layer.DeltaX = mousePosition.X - layer.ImagePosition.Value.X;
                 layer.DeltaY = mousePosition.Y - layer.ImagePosition.Value.Y;
                 layer.IsMoving = true;
@@ -522,7 +521,7 @@ namespace RapidQA
         }
 
         private void LayerImage_MouseUp(object sender, MouseButtonEventArgs e, Layer layer)
-        {
+        {           
             layer.CurrentTT = layer.Image.RenderTransform as TranslateTransform;
             layer.IsMoving = false;
 
@@ -563,23 +562,13 @@ namespace RapidQA
             //if (layer.Image == null) return;
             if (!layer.IsMoving) return;
             if (layer.IsLocked) return;
-
-            //var point = e.GetPosition(layer.Image);
-
-            //CheckPixelTransparencey(layer.Image, point);
-
-            //if (isOpaque)
-            //{
                
-                var mousePoint = Mouse.GetPosition(GridImages);
+            var mousePoint = Mouse.GetPosition(ImageGrid);
+            
+            var offsetX = (layer.CurrentTT == null ? layer.ImagePosition.Value.X : layer.ImagePosition.Value.X - layer.CurrentTT.X) + layer.DeltaX - mousePoint.X;
+            var offsetY = (layer.CurrentTT == null ? layer.ImagePosition.Value.Y : layer.ImagePosition.Value.Y - layer.CurrentTT.Y) + layer.DeltaY - mousePoint.Y;
 
-                var offsetX = (layer.CurrentTT == null ? layer.ImagePosition.Value.X : layer.ImagePosition.Value.X - layer.CurrentTT.X) + layer.DeltaX - mousePoint.X;
-                var offsetY = (layer.CurrentTT == null ? layer.ImagePosition.Value.Y : layer.ImagePosition.Value.Y - layer.CurrentTT.Y) + layer.DeltaY - mousePoint.Y;
-
-                layer.Image.RenderTransform = new TranslateTransform(-offsetX, -offsetY);
-            //}
-
-            //else { Cursor = Cursors.Arrow; }
+            layer.Image.RenderTransform = new TranslateTransform(-offsetX, -offsetY);                       
         }
 
         #endregion
@@ -673,8 +662,8 @@ namespace RapidQA
 
                     if (movingRow.Image != null)
                     {
-                        ImageCanvas.Children.Remove(movingRow.Image);
-                        ImageCanvas.Children.Insert(droptargetIndex, movingRow.Image);
+                        ImageGrid.Children.Remove(movingRow.Image);
+                        ImageGrid.Children.Insert(droptargetIndex, movingRow.Image);
                     }
                 }
 

@@ -151,8 +151,8 @@
     },
     "ImUI/1.0.0": {
       "type": "project",
-      "path": "../../Apps/ImUI/ImUI.csproj",
-      "msbuildProject": "../../Apps/ImUI/ImUI.csproj"
+      "path": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj",
+      "msbuildProject": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -167,11 +167,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj",
+      "projectUniqueName": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj",
       "projectName": "RapidQA",
-      "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\RapidQA.csproj",
+      "projectPath": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj",
       "packagesPath": "C:\\Users\\isabella.ramare\\.nuget\\packages\\",
-      "outputPath": "\\\\shared-fs1\\transfer\\Isabella\\RapidQA\\RapidQA\\obj\\",
+      "outputPath": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\isabella.ramare\\AppData\\Roaming\\NuGet\\NuGet.Config",

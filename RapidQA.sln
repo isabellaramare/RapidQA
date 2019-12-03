@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RapidQA", "RapidQA\RapidQA.csproj", "{15D4EC7C-EA86-475D-859F-2EB705DE49D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImUI", "..\Apps\ImUI\ImUI.csproj", "{A340BFA4-239B-4823-A843-9CEB49A5E348}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImUI", "\\shared-fs1\transfer\Isabella\Apps\ImUI\ImUI.csproj", "{A340BFA4-239B-4823-A843-9CEB49A5E348}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
