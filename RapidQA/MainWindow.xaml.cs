@@ -20,6 +20,7 @@ using Point = System.Windows.Point;
 using Path = System.IO.Path;
 using Color = System.Windows.Media.Color;
 using Microsoft.Win32;
+using System.Reflection;
 
 namespace RapidQA
 {
@@ -35,7 +36,8 @@ namespace RapidQA
         string fileDirectory;
 
         private UIElement _dummyDragSource = new UIElement();
-        private Layer movingRow = new Layer();
+        private Layer selectedLayer = new Layer();
+
 
         // HIGH PRIORITY
         // use Alpha channel to select/move layers https://stackoverflow.com/questions/2250965/wpf-cursor-on-a-partially-transparent-image
@@ -50,11 +52,19 @@ namespace RapidQA
         // rename layers
         // custom made button design (eye for visibility, padlock for locking)
 
+        // BUGS
+        // If you add images to layer 1 before layer 0 it will render behind layer 0
+        // Adding a new layer when zoomed in renders the new image in a different size
+        // Selected layer color is not working
+        // Not selected layer.Image is still in the way if you're moving an image behind it.
+        // Not selected layer.Image still has hand cursor on mouseOver
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = mvm;
             //mvm.LoadFiles(folderPath);  
+            //selectedLayer.Image = new Image();
             BtnAddLayer_Click(null, null);
 
             BtnAddLayer.Click += BtnAddLayer_Click;
@@ -69,13 +79,13 @@ namespace RapidQA
             sp.DragEnter += Sp_DragEnter;
             sp.Drop += Sp_Drop;
 
-            Zoom.MouseMove += Zoom_MouseMove;
-
-            LoadImages();
+            //Zoom.MouseMove += Zoom_MouseMove;
+        
+            LoadEvents();
         }
 
 
-        private void LoadImages()
+        private void LoadEvents()
         {
             foreach (Layer layer in layers)
             {
@@ -91,23 +101,38 @@ namespace RapidQA
                 cb.SelectionChanged += delegate (object sender, SelectionChangedEventArgs e) { Cbx_SelectionChanged(sender, e, layer); };
                 lo.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Lock_Click(sender, e, layer); };
                 vis.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Visibility_Click(sender, e, layer); };
+
+                //if (layer == selectedLayer && layer.Image != null)
+                //{
+                //    layer.Image.MouseLeave += delegate (object sender, MouseEventArgs e) { LayerImage_MouseLeave(sender, e, layer); };
+                //    layer.Image.MouseUp += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseUp(sender, e, layer); };
+                //    layer.Image.MouseDown += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseDown(sender, e, layer); };
+                //    layer.Image.MouseMove += delegate (object sender, MouseEventArgs e) { LayerImage_MouseMove(sender, e, layer); };
+                //}
+                //if (layer == selectedLayer && layer.Image == null)
+                //{
+
+                //}
             }
         }
 
         private void RowMoveArea_MouseRightButtonDown(object sender, MouseButtonEventArgs e, Layer layer)
         {
             foreach (Layer l in layers)
-            {
-                l.IsSelected = false;
-                layer.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
+            {                
+                l.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
             }
-            layer.Row.Grid.Background = new LinearGradientBrush(Color.FromArgb(100, 119, 119, 119), Color.FromArgb(100, 221, 221, 221), new Point(0, 0), new Point(1, 1));
-            layer.IsSelected = true;            
+
+            layer.Row.Grid.Background = new LinearGradientBrush(
+                    Color.FromArgb(100, 119, 119, 119), 
+                    Color.FromArgb(100, 221, 221, 221), 
+                    new Point(0, 0), 
+                    new Point(1, 1));     
         }
 
         private void RowMoveArea_MouseLeave(object sender, MouseEventArgs e, Layer layer)
         {
-            if (!layer.IsSelected)
+            if (layer != selectedLayer)
             {
                 Cursor = Cursors.Arrow;
                 layer.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
@@ -131,16 +156,19 @@ namespace RapidQA
             if (column == 0)
             {
                 Cursor = Cursors.Hand;                
-                layer.Row.Grid.Background = new LinearGradientBrush(Color.FromArgb(100, 119, 119, 119), Color.FromArgb(100, 221, 221, 221), new Point(0, 0), new Point(1, 1));                                        
+                layer.Row.Grid.Background = new LinearGradientBrush(
+                        Color.FromArgb(100, 119, 119, 119), 
+                        Color.FromArgb(100, 221, 221, 221), 
+                        new Point(0, 0), 
+                        new Point(1, 1));                                        
             }
-            if (column != 0 && layer.IsSelected == false) 
+            if (column != 0 && layer != selectedLayer) 
             {
                 Cursor = Cursors.Arrow;
                 layer.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
             }
         }
 
-        // Denna behöver fixas till, gamla bilder sysn fortfarande fast man valt nya
         private void Btn_SelectImages_Click(object sender, RoutedEventArgs e, Layer layer)
         {
             // Get the image files from the user.
@@ -202,7 +230,8 @@ namespace RapidQA
             }
 
             AddNewImage(layer);
-            LoadImages();
+            MakeLayerSelected();
+            LoadEvents();
         }
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
@@ -214,12 +243,11 @@ namespace RapidQA
             newLayer.Row.Button.Click += delegate (object sender, RoutedEventArgs e) { Btn_SelectImages_Click(sender, e, newLayer); };
 
             layers.Add(newLayer);
-            LoadImages();
+            LoadEvents();
         }
 
         private void AddNewImage(Layer layer)
         {
-
             if (layer.Image != null) ImageGrid.Children.Remove(layer.Image);
 
             Asset selectedAsset = (Asset)layer.Row.ComboBox.SelectedItem;
@@ -233,12 +261,11 @@ namespace RapidQA
             ImageGrid.Width = image.Source.Width;
             ImageGrid.Height = image.Source.Height;
 
-            image.MouseEnter += LayerImage_MouseEnter;
-            image.MouseLeave += delegate (object sender, MouseEventArgs e) { LayerImage_MouseLeave(sender, e, layer); };                
-
-            image.MouseUp += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseUp(sender, e, layer); };
-            image.MouseDown += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseDown(sender, e, layer); };
-            image.MouseMove += delegate (object sender, MouseEventArgs e) { LayerImage_MouseMove(sender, e, layer); };
+            //image.MouseEnter += LayerImage_MouseEnter;
+            //image.MouseLeave += delegate (object sender, MouseEventArgs e) { LayerImage_MouseLeave(sender, e, layer); };
+            //image.MouseUp += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseUp(sender, e, layer); };
+            //image.MouseDown += delegate (object sender, MouseButtonEventArgs e) { LayerImage_MouseDown(sender, e, layer); };
+            //image.MouseMove += delegate (object sender, MouseEventArgs e) { LayerImage_MouseMove(sender, e, layer); };
 
             layer.Image = image;
         }
@@ -305,155 +332,149 @@ namespace RapidQA
         }
 
         // Fungerar ej just nu
-        private void Zoom_MouseMove(object sender, MouseEventArgs e)
-        {
-            try
-            {
-                BitmapSource bitmapSource;                                
-                bitmapSource = layers.FirstOrDefault().Image.Source as BitmapSource;                
+        //private void Zoom_MouseMove(object sender, MouseEventArgs e)
+        //{
+        //    try
+        //    {
+        //        BitmapSource bitmapSource;                                
+        //        bitmapSource = layers.FirstOrDefault().Image.Source as BitmapSource;                
 
-                if (bitmapSource != null)
-                {
-                    // get color from bitmap pixel.
-                    // convert coordinates from WPF pixels to Bitmap pixels and restrict them by the Bitmap bounds.
+        //        if (bitmapSource != null)
+        //        {
+        //            // get color from bitmap pixel.
+        //            // convert coordinates from WPF pixels to Bitmap pixels and restrict them by the Bitmap bounds.
 
-                    double x;
-                    double y;
+        //            double x;
+        //            double y;
      
-                    x = Mouse.GetPosition(ZoomImage).X;
-                    x *= bitmapSource.PixelWidth / ZoomImage.ActualWidth;
-                    y = Mouse.GetPosition(ZoomImage).Y;
-                    y *= bitmapSource.PixelHeight / ZoomImage.ActualHeight;
+        //            x = Mouse.GetPosition(ZoomImage).X;
+        //            x *= bitmapSource.PixelWidth / ZoomImage.ActualWidth;
+        //            y = Mouse.GetPosition(ZoomImage).Y;
+        //            y *= bitmapSource.PixelHeight / ZoomImage.ActualHeight;
 
-                    if ((int)x > bitmapSource.PixelWidth - 1)
-                    {
-                        x = bitmapSource.PixelWidth - 1;
-                    }
+        //            if ((int)x > bitmapSource.PixelWidth - 1)
+        //            {
+        //                x = bitmapSource.PixelWidth - 1;
+        //            }
 
-                    else if (x < 1)
-                    {
-                        x = 0;
-                    }
-                    if ((int)y > bitmapSource.PixelHeight - 1)
-                    {
-                        y = bitmapSource.PixelHeight - 1;
-                    }
-                    else if (y < 1)
-                    {
-                        y = 0;
-                    }
+        //            else if (x < 1)
+        //            {
+        //                x = 0;
+        //            }
+        //            if ((int)y > bitmapSource.PixelHeight - 1)
+        //            {
+        //                y = bitmapSource.PixelHeight - 1;
+        //            }
+        //            else if (y < 1)
+        //            {
+        //                y = 0;
+        //            }
 
-                    var pixels = new byte[16];
+        //            var pixels = new byte[16];
 
-                    var stride = (bitmapSource.PixelWidth * bitmapSource.Format.BitsPerPixel + 7) / 8;
+        //            var stride = (bitmapSource.PixelWidth * bitmapSource.Format.BitsPerPixel + 7) / 8;
 
-                    bitmapSource.CopyPixels(new Int32Rect((int)x, (int)y, 1, 1), pixels, stride, 0); // Goes to catch
+        //            bitmapSource.CopyPixels(new Int32Rect((int)x, (int)y, 1, 1), pixels, stride, 0); // Goes to catch
 
-                    // fill color rectangle
+        //            // fill color rectangle
 
-                    if (bitmapSource.Format == PixelFormats.Rgb24)
-                    {
-                        byte red = pixels[0];
+        //            if (bitmapSource.Format == PixelFormats.Rgb24)
+        //            {
+        //                byte red = pixels[0];
 
-                        byte green = pixels[1];
+        //                byte green = pixels[1];
 
-                        byte blue = pixels[2];
+        //                byte blue = pixels[2];
 
-                        imageColorRectangle.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(red, green, blue));
+        //                imageColorRectangle.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(red, green, blue));
 
-                        // rgb
+        //                // rgb
 
-                        imageRedLabel.Content = red.ToString();
+        //                imageRedLabel.Content = red.ToString();
 
-                        imageGreenLabel.Content = green.ToString();
+        //                imageGreenLabel.Content = green.ToString();
 
-                        imageBlueLabel.Content = blue.ToString();
+        //                imageBlueLabel.Content = blue.ToString();
 
-                        // luminance 
+        //                // luminance 
 
-                        double luminance = 0.2126 * Convert.ToInt32(red) + 0.7152 * Convert.ToInt32(green) + 0.0722 * Convert.ToInt32(blue);
+        //                double luminance = 0.2126 * Convert.ToInt32(red) + 0.7152 * Convert.ToInt32(green) + 0.0722 * Convert.ToInt32(blue);
 
-                        imageLuminanceLabel.Content = Convert.ToInt32(luminance).ToString();
-                    }
-                    else if (bitmapSource.Format == PixelFormats.Bgr24 ||
-                             bitmapSource.Format == PixelFormats.Bgr32 ||
-                             bitmapSource.Format == PixelFormats.Bgra32 ||
-                             bitmapSource.Format == PixelFormats.Pbgra32)
-                    {
-                        byte red = pixels[2];
+        //                imageLuminanceLabel.Content = Convert.ToInt32(luminance).ToString();
+        //            }
+        //            else if (bitmapSource.Format == PixelFormats.Bgr24 ||
+        //                     bitmapSource.Format == PixelFormats.Bgr32 ||
+        //                     bitmapSource.Format == PixelFormats.Bgra32 ||
+        //                     bitmapSource.Format == PixelFormats.Pbgra32)
+        //            {
+        //                byte red = pixels[2];
 
-                        byte green = pixels[1];
+        //                byte green = pixels[1];
 
-                        byte blue = pixels[0];
+        //                byte blue = pixels[0];
 
-                        imageColorRectangle.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(red, green, blue));
+        //                imageColorRectangle.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(red, green, blue));
 
-                        // rgb
+        //                // rgb
 
-                        imageRedLabel.Content = red.ToString();
+        //                imageRedLabel.Content = red.ToString();
 
-                        imageGreenLabel.Content = green.ToString();
+        //                imageGreenLabel.Content = green.ToString();
 
-                        imageBlueLabel.Content = blue.ToString();
+        //                imageBlueLabel.Content = blue.ToString();
 
-                        // luminance 
+        //                // luminance 
 
-                        double luminance = 0.2126 * Convert.ToInt32(red) + 0.7152 * Convert.ToInt32(green) + 0.0722 * Convert.ToInt32(blue);
+        //                double luminance = 0.2126 * Convert.ToInt32(red) + 0.7152 * Convert.ToInt32(green) + 0.0722 * Convert.ToInt32(blue);
 
-                        imageLuminanceLabel.Content = Convert.ToInt32(luminance).ToString();
-                    }
-                    else if (bitmapSource.Format == PixelFormats.Rgba64)
-                    {
-                        UInt16 red = BitConverter.ToUInt16(pixels, 0);
+        //                imageLuminanceLabel.Content = Convert.ToInt32(luminance).ToString();
+        //            }
+        //            else if (bitmapSource.Format == PixelFormats.Rgba64)
+        //            {
+        //                UInt16 red = BitConverter.ToUInt16(pixels, 0);
 
-                        UInt16 green = BitConverter.ToUInt16(pixels, 2);
+        //                UInt16 green = BitConverter.ToUInt16(pixels, 2);
 
-                        UInt16 blue = BitConverter.ToUInt16(pixels, 4);
+        //                UInt16 blue = BitConverter.ToUInt16(pixels, 4);
 
-                        imageColorRectangle.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(Quantize16to8(red, UInt16.MaxValue),
-                                                                                                          Quantize16to8(green, UInt16.MaxValue),
-                                                                                                          Quantize16to8(blue, UInt16.MaxValue)));
+        //                imageColorRectangle.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(Quantize16to8(red, UInt16.MaxValue),
+        //                                                                                                  Quantize16to8(green, UInt16.MaxValue),
+        //                                                                                                  Quantize16to8(blue, UInt16.MaxValue)));
 
-                        // rgb
+        //                // rgb
 
-                        imageRedLabel.Content = red.ToString();
+        //                imageRedLabel.Content = red.ToString();
 
-                        imageGreenLabel.Content = green.ToString();
+        //                imageGreenLabel.Content = green.ToString();
 
-                        imageBlueLabel.Content = blue.ToString();
+        //                imageBlueLabel.Content = blue.ToString();
 
-                        // luminance 
+        //                // luminance 
 
-                        double luminance = 0.2126 * Convert.ToInt32(red) + 0.7152 * Convert.ToInt32(green) + 0.0722 * Convert.ToInt32(blue);
+        //                double luminance = 0.2126 * Convert.ToInt32(red) + 0.7152 * Convert.ToInt32(green) + 0.0722 * Convert.ToInt32(blue);
 
-                        imageLuminanceLabel.Content = Convert.ToInt32(luminance).ToString();
-                    }
-                    else
-                    {
-                        imageColorRectangle.Fill = new SolidColorBrush(Colors.Black);
+        //                imageLuminanceLabel.Content = Convert.ToInt32(luminance).ToString();
+        //            }
+        //            else
+        //            {
+        //                imageColorRectangle.Fill = new SolidColorBrush(Colors.Black);
 
-                        imageRedLabel.Content = "0";
+        //                imageRedLabel.Content = "0";
 
-                        imageGreenLabel.Content = "0";
+        //                imageGreenLabel.Content = "0";
 
-                        imageBlueLabel.Content = "0";
-                    }
-                }
-            }
-            catch (Exception)
-            {
+        //                imageBlueLabel.Content = "0";
+        //            }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
                 
-            }
-        }
+        //    }
+        //}
         private byte Quantize16to8(UInt16 d, UInt16 max)
         {
             return (byte)(((double)d / max) * 255.0);
-        }
-
-        private void ChangeComboBoxItemsSource(Layer layer, List<Asset> assets)
-        {
-            layer.Row.ComboBox.ItemsSource = assets;
-            layer.Asset = (Asset)layer.Row.ComboBox.SelectedItem;            
         }
 
         private void Cbx_SelectionChanged(object sender, SelectionChangedEventArgs e, Layer layer)
@@ -484,46 +505,39 @@ namespace RapidQA
 
         #region LAYER MOVING
         private void LayerImage_MouseEnter(object sender, MouseEventArgs e)
-        {
-            Cursor = Cursors.Hand;
+        {            
+            //Cursor = Cursors.Hand;
         }
 
-        private void LayerImage_MouseLeave(object sender, MouseEventArgs e, Layer layer)
+        private void LayerImage_MouseLeave(object sender, MouseEventArgs e)
         {
             Cursor = Cursors.Arrow;
-            LayerImage_MouseUp(null, null, layer);
+            LayerImage_MouseUp(null, null);
         }
 
-        private void LayerImage_MouseDown(object sender, MouseButtonEventArgs e, Layer layer)
+        private void LayerImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (selectedLayer.Image == null) return;
             foreach (var l in layers)
             {
                 if (l.Image != null) l.Image.IsHitTestVisible = false;
             }
+      
+            if (selectedLayer.ImagePosition == null)
+                selectedLayer.ImagePosition = selectedLayer.Image.TransformToAncestor(ImageGrid).Transform(new Point(0, 0));
+            var mousePosition = Mouse.GetPosition(ImageGrid);
+            selectedLayer.DeltaX = mousePosition.X - selectedLayer.ImagePosition.Value.X;
+            selectedLayer.DeltaY = mousePosition.Y - selectedLayer.ImagePosition.Value.Y;
+            selectedLayer.IsMoving = true;
 
-            //var point = e.GetPosition(layer.Image);
-            //CheckPixelTransparencey(layer.Image, point);
-
-            //if (isOpaque)
-            //{
-                if (layer.ImagePosition == null)
-                    layer.ImagePosition = layer.Image.TransformToAncestor(ImageGrid).Transform(new Point(0, 0));
-                var mousePosition = Mouse.GetPosition(ImageGrid);
-                layer.DeltaX = mousePosition.X - layer.ImagePosition.Value.X;
-                layer.DeltaY = mousePosition.Y - layer.ImagePosition.Value.Y;
-                layer.IsMoving = true;
-
-                layer.Image.IsHitTestVisible = true;
-            //}
-
-            //else return;
-            
+            selectedLayer.Image.IsHitTestVisible = true;            
         }
 
-        private void LayerImage_MouseUp(object sender, MouseButtonEventArgs e, Layer layer)
-        {           
-            layer.CurrentTT = layer.Image.RenderTransform as TranslateTransform;
-            layer.IsMoving = false;
+        private void LayerImage_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (selectedLayer.Image == null) return;
+            selectedLayer.CurrentTT = selectedLayer.Image.RenderTransform as TranslateTransform;
+            selectedLayer.IsMoving = false;
 
             foreach (var l in layers)
             {
@@ -556,38 +570,63 @@ namespace RapidQA
         //    else isOpaque = false;
         //}
 
-        private void LayerImage_MouseMove(object sender, MouseEventArgs e, Layer layer)
+        private void LayerImage_MouseMove(object sender, MouseEventArgs e)
         {
-            Cursor = Cursors.Hand;
-            //if (layer.Image == null) return;
-            if (!layer.IsMoving) return;
-            if (layer.IsLocked) return;
+            //Cursor = Cursors.Hand;
+            if (selectedLayer.Image == null) return;
+            if (!selectedLayer.IsMoving) return;
+            if (selectedLayer.IsLocked) return;
                
             var mousePoint = Mouse.GetPosition(ImageGrid);
             
-            var offsetX = (layer.CurrentTT == null ? layer.ImagePosition.Value.X : layer.ImagePosition.Value.X - layer.CurrentTT.X) + layer.DeltaX - mousePoint.X;
-            var offsetY = (layer.CurrentTT == null ? layer.ImagePosition.Value.Y : layer.ImagePosition.Value.Y - layer.CurrentTT.Y) + layer.DeltaY - mousePoint.Y;
+            var offsetX = (selectedLayer.CurrentTT == null ? selectedLayer.ImagePosition.Value.X : selectedLayer.ImagePosition.Value.X - selectedLayer.CurrentTT.X) + selectedLayer.DeltaX - mousePoint.X;
+            var offsetY = (selectedLayer.CurrentTT == null ? selectedLayer.ImagePosition.Value.Y : selectedLayer.ImagePosition.Value.Y - selectedLayer.CurrentTT.Y) + selectedLayer.DeltaY - mousePoint.Y;
 
-            layer.Image.RenderTransform = new TranslateTransform(-offsetX, -offsetY);                       
+            selectedLayer.Image.RenderTransform = new TranslateTransform(-offsetX, -offsetY);                       
         }
 
         #endregion
 
         #region ROW MOVING
+
+        private void MakeLayerSelected()
+        {
+            foreach (Layer l in layers)
+            {
+                l.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
+                if (l.Image != null)
+                {
+                    l.Image.IsHitTestVisible = false;
+                   
+                    l.Image.MouseLeave -= LayerImage_MouseLeave;
+                    l.Image.MouseUp -= LayerImage_MouseUp;
+                    l.Image.MouseDown -= LayerImage_MouseDown;
+                    l.Image.MouseMove -= LayerImage_MouseMove;
+                }
+            }
+            selectedLayer.Row.Grid.Background = new LinearGradientBrush(
+                    Color.FromArgb(100, 119, 119, 119), 
+                    Color.FromArgb(100, 221, 221, 221), 
+                    new Point(0, 0), 
+                    new Point(1, 1));
+
+            if (selectedLayer.Image != null)
+            {
+                
+                selectedLayer.Image.IsHitTestVisible = true;
+                selectedLayer.Image.MouseLeave += LayerImage_MouseLeave; 
+                selectedLayer.Image.MouseUp += LayerImage_MouseUp; 
+                selectedLayer.Image.MouseDown += LayerImage_MouseDown; 
+                selectedLayer.Image.MouseMove += LayerImage_MouseMove; 
+            }
+        }
         private void Sp_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            MakeLayerSelected();
             if (e.Source is Grid)
-            {               
-                movingRow.Row.IsDown = true;            
-                movingRow.Row.StartPoint = e.GetPosition(sp);
-
-                foreach (Layer l in layers)
-                {
-                    l.IsSelected = false;
-                    l.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
-                }
-                movingRow.Row.Grid.Background = new LinearGradientBrush(Color.FromArgb(100, 119, 119, 119), Color.FromArgb(100, 221, 221, 221), new Point(0, 0), new Point(1, 1));
-                movingRow.IsSelected = true;
+            {                               
+                selectedLayer.Row.IsDown = true;            
+                selectedLayer.Row.StartPoint = e.GetPosition(sp);
             }
             else return;
         }
@@ -596,9 +635,9 @@ namespace RapidQA
         {
             if (e.Source is Grid)
             {
-                movingRow.Row.IsDown = false;
-                movingRow.Row.IsDragging = false;
-                movingRow.Row.Grid.ReleaseMouseCapture(); // error occurs if you drag an image "onto" sp and release it  
+                selectedLayer.Row.IsDown = false;
+                selectedLayer.Row.IsDragging = false;
+                selectedLayer.Row.Grid.ReleaseMouseCapture(); // error occurs if you drag an image "onto" sp and release it  
             }
             else return;
         }
@@ -611,21 +650,21 @@ namespace RapidQA
                 {
                     if (layer.Row.Grid == (Grid)e.Source)
                     {
-                        movingRow = layer;
+                        selectedLayer = layer;
                     }
                 }               
             }
             else return;
 
             // Drag and drop
-            if (movingRow.Row.IsDown)
+            if (selectedLayer.Row.IsDown)
             {
-                if ((movingRow.Row.IsDragging == false) && ((Math.Abs(e.GetPosition(sp).X - movingRow.Row.StartPoint.X) > SystemParameters.MinimumHorizontalDragDistance) ||
-                    (Math.Abs(e.GetPosition(sp).Y - movingRow.Row.StartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)))
+                if ((selectedLayer.Row.IsDragging == false) && ((Math.Abs(e.GetPosition(sp).X - selectedLayer.Row.StartPoint.X) > SystemParameters.MinimumHorizontalDragDistance) ||
+                    (Math.Abs(e.GetPosition(sp).Y - selectedLayer.Row.StartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)))
                 {
-                    movingRow.Row.IsDragging = true;
-                    movingRow.Row.Grid.CaptureMouse();
-                    DragDrop.DoDragDrop(_dummyDragSource, new DataObject("UIElement", movingRow.Row.Grid, true), DragDropEffects.Move);
+                    selectedLayer.Row.IsDragging = true;
+                    selectedLayer.Row.Grid.CaptureMouse();
+                    DragDrop.DoDragDrop(_dummyDragSource, new DataObject("UIElement", selectedLayer.Row.Grid, true), DragDropEffects.Move);
                 }
             }
         }
@@ -657,19 +696,19 @@ namespace RapidQA
 
                 if (droptargetIndex != -1)
                 {
-                    sp.Children.Remove(movingRow.Row.Grid);
-                    sp.Children.Insert(droptargetIndex, movingRow.Row.Grid);
+                    sp.Children.Remove(selectedLayer.Row.Grid);
+                    sp.Children.Insert(droptargetIndex, selectedLayer.Row.Grid);
 
-                    if (movingRow.Image != null)
+                    if (selectedLayer.Image != null)
                     {
-                        ImageGrid.Children.Remove(movingRow.Image);
-                        ImageGrid.Children.Insert(droptargetIndex, movingRow.Image);
+                        ImageGrid.Children.Remove(selectedLayer.Image);
+                        ImageGrid.Children.Insert(droptargetIndex, selectedLayer.Image);
                     }
                 }
 
-                movingRow.Row.IsDown = false;
-                movingRow.Row.IsDragging = false;
-                movingRow.Row.Grid.ReleaseMouseCapture();
+                selectedLayer.Row.IsDown = false;
+                selectedLayer.Row.IsDragging = false;
+                selectedLayer.Row.Grid.ReleaseMouseCapture();
             }
         }
         #endregion
@@ -688,6 +727,30 @@ namespace RapidQA
         {
             Zoom.Background = new SolidColorBrush(Colors.White);
         }
-        
+
+        public static void RemoveRoutedEventHandlers(UIElement element, RoutedEvent routedEvent)
+        {
+            // Get the EventHandlersStore instance which holds event handlers for the specified element.
+            // The EventHandlersStore class is declared as internal.
+            var eventHandlersStoreProperty = typeof(UIElement).GetProperty(
+                "EventHandlersStore", BindingFlags.Instance | BindingFlags.NonPublic);
+            object eventHandlersStore = eventHandlersStoreProperty.GetValue(element, null);
+
+            // If no event handlers are subscribed, eventHandlersStore will be null.
+            // Credit: https://stackoverflow.com/a/16392387/1149773
+            if (eventHandlersStore == null)
+                return;
+
+            // Invoke the GetRoutedEventHandlers method on the EventHandlersStore instance 
+            // for getting an array of the subscribed event handlers.
+            var getRoutedEventHandlers = eventHandlersStore.GetType().GetMethod(
+                "GetRoutedEventHandlers", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var routedEventHandlers = (RoutedEventHandlerInfo[])getRoutedEventHandlers.Invoke(
+                eventHandlersStore, new object[] { routedEvent });
+
+            // Iteratively remove all routed event handlers from the element.
+            foreach (var routedEventHandler in routedEventHandlers)
+                element.RemoveHandler(routedEvent, routedEventHandler.Handler);
+        }
     }
 }
