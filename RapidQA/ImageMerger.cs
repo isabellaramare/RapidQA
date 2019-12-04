@@ -14,30 +14,11 @@ namespace RapidQA
 {
     class ImageMerger
     {
-        public static BitmapImage MergeImages(List<Asset> chosenImages, string backgroundColor)
+        public static BitmapImage MergeImages(List<Asset> chosenImages)
         {
             // Convert images to Bitmaps      
             var bitmap = new Bitmap(1000, 1000);
-            Graphics g = Graphics.FromImage(bitmap);
-
-            switch (backgroundColor)
-            {
-                case "black":
-                    g.Clear(Color.Black);
-                    break;
-                case "white":
-                    g.Clear(Color.White);
-                    break;
-                case "gray":
-                    g.Clear(Color.Gray);
-                    break;
-                case "red":
-                    g.Clear(Color.Red);
-                    break;
-                case "green":
-                    g.Clear(Color.Green);
-                    break;
-            }
+            Graphics g = Graphics.FromImage(bitmap);          
 
             foreach (Asset image in chosenImages)
             {

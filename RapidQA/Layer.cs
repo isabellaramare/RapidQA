@@ -14,7 +14,7 @@ namespace RapidQA
         
         // Layer moving
         public bool IsMoving { get; set; }
-        public Point? ImagePosition { get; set; }
+        public Point ImagePosition { get; set; }
         public double DeltaX { get; set; }
         public double DeltaY { get; set; }
         public TranslateTransform CurrentTT { get; set; }
