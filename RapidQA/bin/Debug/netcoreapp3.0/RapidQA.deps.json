@@ -41,20 +41,17 @@
           }
         }
       },
+      "ImSystem/1.0.0": {
+        "runtime": {
+          "ImSystem.dll": {}
+        }
+      },
       "ImUI/1.0.0": {
         "dependencies": {
-          "ImSystem": "1.0.0.0"
+          "ImSystem": "1.0.0"
         },
         "runtime": {
           "ImUI.dll": {}
-        }
-      },
-      "ImSystem.Reference/1.0.0.0": {
-        "runtime": {
-          "ImSystem.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
         }
       }
     }
@@ -86,13 +83,13 @@
       "path": "system.drawing.common/4.6.1",
       "hashPath": "system.drawing.common.4.6.1.nupkg.sha512"
     },
-    "ImUI/1.0.0": {
+    "ImSystem/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "ImSystem.Reference/1.0.0.0": {
-      "type": "reference",
+    "ImUI/1.0.0": {
+      "type": "project",
       "serviceable": false,
       "sha512": ""
     }

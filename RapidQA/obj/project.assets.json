@@ -52,8 +52,20 @@
           }
         }
       },
+      "ImSystem/1.0.0": {
+        "type": "project",
+        "compile": {
+          "bin/placeholder/ImSystem.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ImSystem.dll": {}
+        }
+      },
       "ImUI/1.0.0": {
         "type": "project",
+        "dependencies": {
+          "ImSystem": "1.0.0"
+        },
         "compile": {
           "bin/placeholder/ImUI.dll": {}
         },
@@ -148,6 +160,11 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "ImSystem/1.0.0": {
+      "type": "project",
+      "path": "../Apps/ImSystem/ImSystem.csproj",
+      "msbuildProject": "../Apps/ImSystem/ImSystem.csproj"
     },
     "ImUI/1.0.0": {
       "type": "project",

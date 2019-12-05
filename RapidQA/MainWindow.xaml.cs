@@ -21,6 +21,7 @@ using Path = System.IO.Path;
 using Color = System.Windows.Media.Color;
 using Microsoft.Win32;
 using System.Reflection;
+using System.Windows.Controls.Primitives;
 
 namespace RapidQA
 {
@@ -33,20 +34,20 @@ namespace RapidQA
         List<Layer> layers = new List<Layer>();
         Row row = new Row();
         string fileDirectory;
-
+        private bool imagesUpdated = false;
         private UIElement _dummyDragSource = new UIElement();
         private Layer selectedLayer = new Layer();
 
 
         // HIGH PRIORITY
         // save an image (whith all visible layers)
-        // config file for automatic image-to-layer distribution        
-        // If no layer is selected or mouse is not over selectedLayer.Image or maybe mousewheel? -> Use Zoom image-drag, moving all layers at once
+        // config file for automatic image-to-layer distribution                
 
-        // BUGS
-        // Selected layer color is not working             
+        // BUGS           
         // Zoom works with ImageGrid -> this is what is centered when you press 1:1 and fill
         // work-area?
+        // image is not rendered at its original size (i think) 
+        // - if you set the workarea to 3000x2000 a picture that is 500x500 will fill the area
 
         // EXTRAS
         // ability to move a layer with arrows
@@ -64,13 +65,17 @@ namespace RapidQA
             DataContext = mvm;
             //mvm.LoadFiles(folderPath);  
             //selectedLayer.Image = new Image();
+            ImageGrid.Height = 1440;
+            ImageGrid.Width = 1920;
             BtnAddLayer_Click(null, null);
+            ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
 
             BtnAddLayer.Click += BtnAddLayer_Click;
             BtnComposite.Click += BtnComposite_Click;
-            BtnWhite.Click += BtnWhite_Click;
-            BtnGray.Click += BtnGray_Click;
-            BtnBlack.Click += BtnBlack_Click;
+
+            ClrPcker_Background.ColorChanged += ClrPcker_Background_ColorChanged;
+            workarea_width.TextChanged += Workarea_width_TextChanged;
+            workarea_height.TextChanged += Workarea_height_TextChanged;
 
             sp.MouseMove += Sp_MouseMove;
             sp.MouseLeftButtonDown += Sp_MouseLeftButtonDown;
@@ -83,6 +88,33 @@ namespace RapidQA
             LoadEvents();
         }
 
+        private void Workarea_height_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Workarea_width_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                int width = int.Parse(workarea_width.Text);
+                ImageGrid.Width = width;
+            }
+            catch (Exception ex)
+            {
+                Popup codePopup = new Popup();
+                TextBlock popupText = new TextBlock();
+                popupText.Text = ex + "Pleace enter a number";
+                popupText.Background = System.Windows.Media.Brushes.LightBlue;
+                popupText.Foreground = System.Windows.Media.Brushes.Blue;
+                codePopup.Child = popupText;                
+            }
+        }
+
+        private void ClrPcker_Background_ColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
+        {
+            ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
+        }
 
         private void LoadEvents()
         {
@@ -93,29 +125,13 @@ namespace RapidQA
                 CheckBox vis = layer.Row.CBVisibility;
                 CheckBox lo = layer.Row.CBLock;
 
-                //grid.MouseMove += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseMove(sender, e, layer); };
-                //grid.MouseLeave += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseLeave(sender, e, layer); };
-                //grid.MouseLeftButtonDown += delegate (object sender, MouseButtonEventArgs e) { RowMoveArea_MouseLeftButtonDown(sender, e, layer); };                                        
+                grid.MouseMove += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseMove(sender, e, layer); };
+                grid.MouseLeave += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseLeave(sender, e, layer); };                                                 
 
                 cb.SelectionChanged += delegate (object sender, SelectionChangedEventArgs e) { Cbx_SelectionChanged(sender, e, layer); };
                 lo.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Lock_Click(sender, e, layer); };
                 vis.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Visibility_Click(sender, e, layer); };
             }
-        }
-
-        private void RowMoveArea_MouseLeftButtonDown(object sender, MouseButtonEventArgs e, Layer layer)
-        {          
-            MakeLayerSelected(layer);
-            //foreach (Layer l in layers)
-            //{                
-            //    l.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
-            //}
-
-            //layer.Row.Grid.Background = new LinearGradientBrush(
-            //        Color.FromArgb(100, 119, 119, 119), 
-            //        Color.FromArgb(100, 221, 221, 221), 
-            //        new Point(0, 0), 
-            //        new Point(1, 1));     
         }
 
         private void RowMoveArea_MouseLeave(object sender, MouseEventArgs e, Layer layer)
@@ -140,50 +156,35 @@ namespace RapidQA
 
         private void RowMoveArea_MouseMove(object sender, MouseEventArgs e, Layer layer)
         {
-            //double x = e.GetPosition(layer.Row.Grid).X;
-            //double start = 0.0;
-            //int column = 0;
-            //foreach (ColumnDefinition cd in layer.Row.Grid.ColumnDefinitions)
-            //{
-            //    start += cd.ActualWidth;
-            //    if (x < start)
-            //    {
-            //        break;
-            //    }
-            //    column++;
-            //}
-            //if (column == 0)
-            //{
-            //    Cursor = Cursors.Hand;                                                                     
-            //}
-            //if (column != 0) 
-            //{
-            //    Cursor = Cursors.Arrow;
-            //}
-            //foreach (Layer l in layers)
-            //{
-            //    if (l == selectedLayer)
-            //    {
-            //        layer.Row.Grid.Background = new LinearGradientBrush(
-    //                   Color.FromArgb(100, 119, 119, 119),
-    //                   Color.FromArgb(100, 221, 221, 221),
-    //                   new Point(0, 0),
-    //                   new Point(1, 1));
-            //    }
-            //    else layer.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
-            //}
+            double x = e.GetPosition(layer.Row.Grid).X;
+            double start = 0.0;
+            int column = 0;
+            foreach (ColumnDefinition cd in layer.Row.Grid.ColumnDefinitions)
+            {
+                start += cd.ActualWidth;
+                if (x < start)
+                {
+                    break;
+                }
+                column++;
+            }
+            if (column == 0)
+            {
+                Cursor = Cursors.Hand;
+            }
+            if (column != 0)
+            {
+                Cursor = Cursors.Arrow;
+            }
 
             layer.Row.Grid.Background = new LinearGradientBrush(
                 Color.FromArgb(100, 119, 119, 119),
                 Color.FromArgb(100, 221, 221, 221),
                 new Point(0, 0),
                 new Point(1, 1));
-
-            Cursor = Cursors.Hand;
         }
 
-        private bool imagesUpdated = false;
-
+       
         private void Btn_SelectImages_Click(object sender, RoutedEventArgs e, Layer layer)
         {
             if (layer.Image is null)
@@ -200,7 +201,6 @@ namespace RapidQA
                 imagesUpdated = true;
                 layer.Row.ComboBox.ItemsSource = SelectImages();
                 layer.Row.ComboBox.SelectedIndex = 0;
-                //AddNewImage(layer);
                 ChangeImageFilepath(layer);                
             }
 
@@ -220,12 +220,6 @@ namespace RapidQA
             openDlg.Multiselect = true;
 
             bool? result = openDlg.ShowDialog(this);
-
-            // Return if canceled.
-            if (!(bool)result)
-            {
-                // return;
-            }
 
             string[] selectedFiles = openDlg.FileNames;
 
@@ -292,9 +286,6 @@ namespace RapidQA
 
         private void AddNewImage(Layer layer)
         {
-            //Point renderPoint = layer.ImagePosition;
-
-            //selectedLayer = layer;
             if (layer.Image != null)
             {                
                 ImageGrid.Children.Remove(layer.Image);
@@ -307,14 +298,12 @@ namespace RapidQA
             var uriSource = new Uri(selectedAsset.Filepath);
             image.Source = new BitmapImage(uriSource);
 
-            //image.RenderTransformOrigin = renderPoint;
-            
-            //ImageGrid.Width = image.Source.Width;
-            //ImageGrid.Height = image.Source.Height;
-
-            for (int i = 0; i <= 100; i++)
+            if (ImageGrid.Children.Count < 10)
             {
-                ImageGrid.Children.Add(new UIElement());
+                for (int i = 0; i <= 100; i++)
+                {
+                    ImageGrid.Children.Add(new UIElement());
+                }
             }
                        
             // Image is added at same index as its layer
@@ -347,7 +336,7 @@ namespace RapidQA
             if (dialog.ShowDialog().Value)
             {
                 System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(ImageGrid)); 
-                // Catch exception when there is no image (also, only saves layer 0)
+                // Catch exception when there is no image
                 // Tar inte hänsyn till Zoom
 
                 image.Save(dialog.FileName);
@@ -642,7 +631,6 @@ namespace RapidQA
         #endregion
 
         #region ROW MOVING
-
         private void MakeLayerSelected(Layer layer)
         {
             selectedLayer = layer;
@@ -734,7 +722,7 @@ namespace RapidQA
         }
 
         private void Sp_Drop(object sender, DragEventArgs e)
-        {
+        {           
             if (e.Data.GetDataPresent("UIElement"))
             {
                 UIElement droptarget = e.Source as UIElement;
@@ -755,6 +743,16 @@ namespace RapidQA
                     sp.Children.Remove(selectedLayer.Row.Grid);
                     sp.Children.Insert(droptargetIndex, selectedLayer.Row.Grid);
 
+                    foreach (Layer layer in layers)
+                    {
+                        if (layer.Equals(selectedLayer))
+                        {
+                            layers.Remove(layer);
+                            layers.Insert(droptargetIndex, layer);
+                            break;
+                        }
+                    }           
+
                     if (selectedLayer.Image != null)
                     {
                         ImageGrid.Children.Remove(selectedLayer.Image);
@@ -771,17 +769,17 @@ namespace RapidQA
 
         private void BtnBlack_Click(object sender, RoutedEventArgs e)
         {
-            Zoom.Background = new SolidColorBrush(Colors.Black);
+            ImageGrid.Background = new SolidColorBrush(Colors.Black);
         }
 
         private void BtnGray_Click(object sender, RoutedEventArgs e)
         {
-            Zoom.Background = new SolidColorBrush(Colors.Gray);
+            ImageGrid.Background = new SolidColorBrush(Colors.Gray);
         }
 
         private void BtnWhite_Click(object sender, RoutedEventArgs e)
         {
-            Zoom.Background = new SolidColorBrush(Colors.White);
+            ImageGrid.Background = new SolidColorBrush(Colors.White);
         }
     }
 }

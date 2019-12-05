@@ -4,6 +4,17 @@
     "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj": {}
   },
   "projects": {
+    "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\Apps\\ImSystem\\ImSystem.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\Apps\\ImSystem\\ImSystem.csproj",
+        "projectName": "ImSystem",
+        "projectPath": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\Apps\\ImSystem\\ImSystem.csproj"
+      },
+      "frameworks": {
+        "net46": {}
+      }
+    },
     "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\RapidQA\\RapidQA.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -74,7 +85,16 @@
       "restore": {
         "projectUniqueName": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj",
         "projectName": "ImUI",
-        "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj"
+        "projectPath": "\\\\shared-fs1\\transfer\\Isabella\\Apps\\ImUI\\ImUI.csproj",
+        "frameworks": {
+          "net46": {
+            "projectReferences": {
+              "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\Apps\\ImSystem\\ImSystem.csproj": {
+                "projectPath": "C:\\Users\\isabella.ramare\\Documents\\RapidQA\\Apps\\ImSystem\\ImSystem.csproj"
+              }
+            }
+          }
+        }
       },
       "frameworks": {
         "net46": {}
