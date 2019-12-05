@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace RapidQA
 {
@@ -96,7 +97,7 @@ namespace RapidQA
 
             button.Margin = new Thickness(0, 3, 0, 2);
             button.SetValue(Grid.ColumnSpanProperty, 2);
-            button.Content = "Select Images...";
+            button.Content = "Select Images...";         
 
             grid.Children.Add(label);
             grid.Children.Add(button);

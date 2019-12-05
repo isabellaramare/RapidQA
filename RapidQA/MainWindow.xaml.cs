@@ -40,14 +40,10 @@ namespace RapidQA
 
 
         // HIGH PRIORITY
-        // save an image (whith all visible layers)
-        // config file for automatic image-to-layer distribution                
+        // config file for automatic image-to-layer distribution      https://support.microsoft.com/en-us/help/815786/how-to-store-and-retrieve-custom-information-from-an-application-confi                 
 
-        // BUGS           
-        // Zoom works with ImageGrid -> this is what is centered when you press 1:1 and fill
-        // work-area?
-        // image is not rendered at its original size (i think) 
-        // - if you set the workarea to 3000x2000 a picture that is 500x500 will fill the area
+        // BUGS
+        // weird white box appears when saving view
 
         // EXTRAS
         // ability to move a layer with arrows
@@ -56,8 +52,7 @@ namespace RapidQA
         // custom made button design (eye for visibility, padlock for locking)
         // deleting layers
         // highlight selected layer (border around image or something like that)
-        // Snapping
-        // Resize "Row" area        
+        // Snapping      
 
         public MainWindow()
         {
@@ -65,13 +60,14 @@ namespace RapidQA
             DataContext = mvm;
             //mvm.LoadFiles(folderPath);  
             //selectedLayer.Image = new Image();
-            ImageGrid.Height = 1440;
+            ImageGrid.Height = 1080;
             ImageGrid.Width = 1920;
             BtnAddLayer_Click(null, null);
             ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
 
             BtnAddLayer.Click += BtnAddLayer_Click;
-            BtnComposite.Click += BtnComposite_Click;
+            BtnSaveWorkArea.Click += BtnComposite_Click;
+            BtnSaveView.Click += BtnComposite_Click;
 
             ClrPcker_Background.ColorChanged += ClrPcker_Background_ColorChanged;
             workarea_width.TextChanged += Workarea_width_TextChanged;
@@ -84,6 +80,8 @@ namespace RapidQA
             sp.Drop += Sp_Drop;
 
             Zoom.MouseMove += Zoom_MouseMove;
+
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
         
             LoadEvents();
         }
@@ -285,7 +283,7 @@ namespace RapidQA
         }
 
         private void AddNewImage(Layer layer)
-        {
+        {           
             if (layer.Image != null)
             {                
                 ImageGrid.Children.Remove(layer.Image);
@@ -298,7 +296,9 @@ namespace RapidQA
             var uriSource = new Uri(selectedAsset.Filepath);
             image.Source = new BitmapImage(uriSource);
 
-            if (ImageGrid.Children.Count < 10)
+            image.Stretch = Stretch.None;
+
+            if (ImageGrid.Children.Count < 1)
             {
                 for (int i = 0; i <= 100; i++)
                 {
@@ -335,11 +335,18 @@ namespace RapidQA
 
             if (dialog.ShowDialog().Value)
             {
-                System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(ImageGrid)); 
+                if (e.OriginalSource == BtnSaveWorkArea)
+                {
+                    System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(ImageGrid)); 
+                    image.Save(dialog.FileName);
+                }
+                if (e.OriginalSource == BtnSaveView)
+                {
+                    System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(GridImages));
+                    image.Save(dialog.FileName);
+                }
                 // Catch exception when there is no image
-                // Tar inte hänsyn till Zoom
 
-                image.Save(dialog.FileName);
             }
         }
 

@@ -10,11 +10,12 @@
         Title="Rapid QA" Height="700" Width="1200" MinHeight="500" MinWidth="700">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" MinWidth="230"/>
+            <ColumnDefinition Width="1.1*" MinWidth="240" MaxWidth="400"/>
+            <ColumnDefinition Width="4"/>
             <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="GridImages" Grid.Column="1">
+        <Grid x:Name="GridImages" Grid.Column="2">
             <!--Layers-->
             <zoom:ZoomControl x:Name="Zoom" AllowDrop="True" Background="#FF4B4B4B" VerticalAlignment="Top">
                 <Grid x:Name="ImageGrid" Background="White">
@@ -47,13 +48,13 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="90"/>
                 <RowDefinition />
-                <RowDefinition Height="100"/>
+                <RowDefinition Height="120"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Vertical">
                 <Label Content="Quality Assurance" Background="#FF202020" Height="50" VerticalContentAlignment="Center" Padding="30,0" FontSize="18" FontWeight="Bold" Foreground="WhiteSmoke"/>
                 <browse:Browser x:Name="BrwRootDir" BrowseFolder="True" Label="Browse folder" LabelWidth="100" Margin="10,10,20,10" Width="200" HorizontalAlignment="Left" Height="25"/>
             </StackPanel>
-            <ScrollViewer  Grid.Row="1">
+            <ScrollViewer x:Name="scrollViewer" Grid.Row="1">
                 <StackPanel x:Name="sp" Margin="10" Background="White" AllowDrop="True">
                     <!--This is where the Rows go-->
                 </StackPanel>
@@ -64,46 +65,80 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" >
+                        <StackPanel>
+                            <TextBlock HorizontalAlignment="Left" Text="Work Area Background:" TextWrapping="Wrap" VerticalAlignment="Top"  Padding="0, 0, 0, 5" FontSize="11"/>
+                            <colorpicker:ColorPicker Name="ClrPcker_Background" Grid.Column="1" VerticalAlignment="Top"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        
+                    </Grid>
+                    <Grid Grid.Row="2" Margin="0,5,0,0">
+                        <StackPanel>
+                            <Grid>
+                                <Label HorizontalAlignment="Left" Content="Work Area Size:" VerticalAlignment="top" Padding="0, 0, 0, 5" FontSize="11"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="2*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="workarea_width" Grid.Column="0" VerticalAlignment="top" Text="1920"/>
+                                <TextBlock Text="x" Grid.Column="1" VerticalAlignment="top" HorizontalAlignment="center"/>
+                                <TextBox x:Name="workarea_height" Grid.Column="2" VerticalAlignment="top" Text="1440"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <Button x:Name="BtnAddLayer" HorizontalAlignment="Right" Content="Add Layer" Height="30" VerticalAlignment="top" MinWidth="80" Margin="0,0,15,0"/>
+                        <Button x:Name="BtnAddLayer" 
+                                HorizontalAlignment="Right" 
+                                Content="Add Layer" 
+                                Height="20" 
+                                VerticalAlignment="Center" 
+                                MinWidth="85" 
+                                FontSize="11"
+                                Margin="0,0,15,0"/>
                     </Grid>
                     <Grid Grid.Row="1">
-                        <Button x:Name="BtnComposite" HorizontalAlignment="Right" Content="Save Image"  Height="30" VerticalAlignment="top" MinWidth="80" Margin="0,0,15,0"/>
+                        <Button x:Name="BtnSaveWorkArea" 
+                                HorizontalAlignment="Right" 
+                                Content="Save Work Area" 
+                                Height="20" 
+                                VerticalAlignment="Center" 
+                                MinWidth="85" 
+                                FontSize="11"
+                                 Margin="0,0,15,0"/>
                     </Grid>
-                </Grid>
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="1*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label HorizontalAlignment="Center" Content="Background:" VerticalAlignment="Top" Margin="-6"/>
-                        <colorpicker:ColorPicker Name="ClrPcker_Background" Grid.Column="1" Height="30" VerticalAlignment="Top"/>
-                    </Grid>
-
-                    <Grid Grid.Row="1" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label HorizontalAlignment="Center" Content="Size:" VerticalAlignment="top" Margin="-6"/>
-                        <TextBox x:Name="workarea_width" Grid.Column="1" VerticalAlignment="top" Text="1920"/>
-                        <TextBlock Text="x" Grid.Column="2" VerticalAlignment="top" HorizontalAlignment="center"/>
-                        <TextBox x:Name="workarea_height" Grid.Column="3" VerticalAlignment="top" Text="1440"/>
+                    <Grid Grid.Row="2">
+                        <Button x:Name="BtnSaveView" 
+                                HorizontalAlignment="Right" 
+                                Content="Save View" 
+                                Height="20" 
+                                VerticalAlignment="Center" 
+                                MinWidth="85" 
+                                FontSize="11"
+                                 Margin="0,0,15,0"/>
                     </Grid>
                 </Grid>
             </Grid>
         </Grid>
+        <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"  Background="#FF303030"/>
     </Grid>
 </Window>
+    
+    
+    
