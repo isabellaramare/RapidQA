@@ -1,27 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
-using Path = System.IO.Path;
 using Color = System.Windows.Media.Color;
 using Microsoft.Win32;
-using System.Reflection;
-using System.Windows.Controls.Primitives;
 
 namespace RapidQA
 {
@@ -44,6 +33,7 @@ namespace RapidQA
 
         // BUGS
         // weird white box appears when saving view
+        // Change movement info (eg. CTRL + scroll)
 
         // EXTRAS
         // ability to move a layer with arrows
@@ -59,10 +49,10 @@ namespace RapidQA
             InitializeComponent();
             DataContext = mvm;
             //mvm.LoadFiles(folderPath);  
-            //selectedLayer.Image = new Image();
-            ImageGrid.Height = 1080;
-            ImageGrid.Width = 1920;
+            //selectedLayer.Image = new Image();         
             BtnAddLayer_Click(null, null);
+            //Workarea_Height_TextChanged(null, null);
+            //Workarea_Width_TextChanged(null, null);
             ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
 
             BtnAddLayer.Click += BtnAddLayer_Click;
@@ -70,8 +60,8 @@ namespace RapidQA
             BtnSaveView.Click += BtnComposite_Click;
 
             ClrPcker_Background.ColorChanged += ClrPcker_Background_ColorChanged;
-            workarea_width.TextChanged += Workarea_width_TextChanged;
-            workarea_height.TextChanged += Workarea_height_TextChanged;
+            workarea_width.TextChanged += Workarea_Width_TextChanged;
+            workarea_height.TextChanged += Workarea_Height_TextChanged;
 
             sp.MouseMove += Sp_MouseMove;
             sp.MouseLeftButtonDown += Sp_MouseLeftButtonDown;
@@ -86,34 +76,6 @@ namespace RapidQA
             LoadEvents();
         }
 
-        private void Workarea_height_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Workarea_width_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            try
-            {
-                int width = int.Parse(workarea_width.Text);
-                ImageGrid.Width = width;
-            }
-            catch (Exception ex)
-            {
-                Popup codePopup = new Popup();
-                TextBlock popupText = new TextBlock();
-                popupText.Text = ex + "Pleace enter a number";
-                popupText.Background = System.Windows.Media.Brushes.LightBlue;
-                popupText.Foreground = System.Windows.Media.Brushes.Blue;
-                codePopup.Child = popupText;                
-            }
-        }
-
-        private void ClrPcker_Background_ColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
-        {
-            ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
-        }
-
         private void LoadEvents()
         {
             foreach (Layer layer in layers)
@@ -122,6 +84,7 @@ namespace RapidQA
                 ComboBox cb = layer.Row.ComboBox;
                 CheckBox vis = layer.Row.CBVisibility;
                 CheckBox lo = layer.Row.CBLock;
+                Button del = layer.Row.Delete;
 
                 grid.MouseMove += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseMove(sender, e, layer); };
                 grid.MouseLeave += delegate (object sender, MouseEventArgs e) { RowMoveArea_MouseLeave(sender, e, layer); };                                                 
@@ -129,6 +92,101 @@ namespace RapidQA
                 cb.SelectionChanged += delegate (object sender, SelectionChangedEventArgs e) { Cbx_SelectionChanged(sender, e, layer); };
                 lo.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Lock_Click(sender, e, layer); };
                 vis.Click += delegate (object sender, RoutedEventArgs e) { Ckb_Visibility_Click(sender, e, layer); };
+                del.Click += delegate (object sender, RoutedEventArgs e) { Btn_Delete_Click(sender, e, layer); }; // Triggas två gånger? :S
+            }
+
+            Workarea_Height_TextChanged(null, null);
+            Workarea_Width_TextChanged(null, null);
+        }
+
+        internal void DeleteLayer(Layer layer)
+        {
+            // delete image
+            foreach (Image i in ImageGrid.Children)
+            {
+                if (i.Equals(layer.Image))
+                {
+                    ImageGrid.Children.Remove(i);
+                    break;
+                }
+            }
+
+            // delete row
+            foreach (Grid g in sp.Children)
+            {
+                if (g.Equals(layer.Row.Grid))
+                {
+                    sp.Children.Remove(g);
+                    break;
+                }
+            }
+
+            // delete from layers
+            foreach (Layer l in layers)
+            {
+                if (l.Equals(layer))
+                {
+                    layers.Remove(l);
+                    break;
+                }
+            }
+        }
+
+        private void Workarea_Height_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                double height = int.Parse(workarea_height.Text);
+
+                foreach (Layer l in layers)
+                {
+                    if (l.Image.Source.Height >= height)
+                    {                        
+                        height = l.Image.Source.Height;
+                    }                    
+                }
+                ImageGrid.Height = height;
+                workarea_height.Text = height.ToString();
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+
+        private void Workarea_Width_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                double width = int.Parse(workarea_width.Text);
+
+                foreach (Layer l in layers)
+                {
+                    if (l.Image.Source.Width >= width)
+                    {
+                        width = l.Image.Source.Width;
+                    }                   
+                }
+                ImageGrid.Width = width;
+                workarea_width.Text = width.ToString();
+            }
+            catch (Exception ex)
+            {
+                              
+            }
+        }
+
+        private void ClrPcker_Background_ColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
+        {
+            ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
+        }
+
+        private void Btn_Delete_Click(object sender, RoutedEventArgs e, Layer layer)
+        {
+            MessageBoxResult result = MessageBox.Show("Delete this layer?", "Delete Layer", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
+            if (result == MessageBoxResult.Yes)
+            {                
+                DeleteLayer(layer);
             }
         }
 
@@ -190,7 +248,7 @@ namespace RapidQA
                 List<Asset> assets = SelectImages();
                 if (assets.Count > 0)
                 {
-                    AddRowComponents(layer, assets);
+                    row.AddRowComponents(layer, assets);
                     AddNewImage(layer);
                 }
             } 
@@ -241,33 +299,7 @@ namespace RapidQA
             Asset selectedItem = (Asset)layer.Row.ComboBox.SelectedItem;
             var uriSource = new Uri(selectedItem.Filepath);
             layer.Image.Source = new BitmapImage(uriSource);
-        }
-
-        private void AddRowComponents(Layer layer, List<Asset> assets)
-        {
-            // Add combobox to Row
-            ComboBox combobox = new ComboBox();
-            combobox.SetValue(Grid.ColumnProperty, 3);
-            combobox.VerticalAlignment = VerticalAlignment.Center;
-            combobox.HorizontalAlignment = HorizontalAlignment.Left;
-            combobox.Margin = new Thickness(5, 0, 0, 0);
-            layer.Row.Grid.Children.Add(combobox);
-            layer.Row.ComboBox = combobox;
-            combobox.ItemsSource = assets;
-            layer.Row.ComboBox.SelectedIndex = 0;
-
-            // Adjust button and Checkboxes
-            Button btn = layer.Row.Button;
-            btn.Content = "...";
-            btn.Width = 22;
-            btn.Height = 22;
-            btn.HorizontalAlignment = HorizontalAlignment.Left;
-            btn.HorizontalContentAlignment = HorizontalAlignment.Center;
-
-            layer.Row.CBVisibility.RenderTransformOrigin = new Point(3.14, 0.461);
-            layer.Row.CBVisibility.IsEnabled = true;
-            layer.Row.CBLock.IsEnabled = true;            
-        }
+        }      
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
         {
@@ -317,8 +349,10 @@ namespace RapidQA
 
             layer.Image = image;
             SetLayerVisibility(layer);
+                LoadEvents();
         }
 
+        #region SAVE IMAGE
         private void BtnComposite_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
@@ -345,12 +379,10 @@ namespace RapidQA
                     System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(GridImages));
                     image.Save(dialog.FileName);
                 }
-                // Catch exception when there is no image
-
+                // TODO: Catch exception when there is no image
             }
         }
 
-        // Om man använder den här kanske den tar hänsyn till zoom? - Nej
         private RenderTargetBitmap GridToRenderTargetBitmap(Grid grid)
         {
             Transform transform = grid.LayoutTransform;
@@ -387,7 +419,36 @@ namespace RapidQA
             ms.Flush();
             return System.Drawing.Image.FromStream(ms);
         }
+        #endregion
 
+        private void Cbx_SelectionChanged(object sender, SelectionChangedEventArgs e, Layer layer)
+        {
+            if (imagesUpdated) return;
+            ChangeImageFilepath(layer);             
+            SetLayerVisibility(layer);
+        }
+
+        private void Ckb_Lock_Click(object sender, RoutedEventArgs e, Layer layer)
+        {
+            if ((bool)layer.Row.CBLock.IsChecked) layer.IsLocked = true;
+            if (!(bool)layer.Row.CBLock.IsChecked) layer.IsLocked = false;
+        }
+
+
+        private void Ckb_Visibility_Click(object sender, RoutedEventArgs e, Layer layer)
+        {
+            if (layer.Image != null) SetLayerVisibility(layer);
+        }
+
+        private void SetLayerVisibility(Layer layer)
+        {
+            CheckBox cb = layer.Row.CBVisibility;
+
+            if ((bool)cb.IsChecked) layer.Image.Visibility = Visibility.Visible;
+            if (!(bool)cb.IsChecked) layer.Image.Visibility = Visibility.Hidden;
+        }
+
+        #region PIXEL COLOR
         private void Zoom_MouseMove(object sender, MouseEventArgs e)
         {
             try
@@ -533,36 +594,9 @@ namespace RapidQA
         {
             return (byte)(((double)d / max) * 255.0);
         }
+        #endregion
 
-        private void Cbx_SelectionChanged(object sender, SelectionChangedEventArgs e, Layer layer)
-        {
-            if (imagesUpdated) return;
-            ChangeImageFilepath(layer);           
-            //AddNewImage(layer);
-            SetLayerVisibility(layer);
-        }
-
-        private void Ckb_Lock_Click(object sender, RoutedEventArgs e, Layer layer)
-        {
-            if ((bool)layer.Row.CBLock.IsChecked) layer.IsLocked = true;
-            if (!(bool)layer.Row.CBLock.IsChecked) layer.IsLocked = false;
-        }
-
-
-        private void Ckb_Visibility_Click(object sender, RoutedEventArgs e, Layer layer)
-        {
-            if (layer.Image != null) SetLayerVisibility(layer);
-        }
-
-        private void SetLayerVisibility(Layer layer)
-        {
-            CheckBox cb = layer.Row.CBVisibility;
-
-            if ((bool)cb.IsChecked) layer.Image.Visibility = Visibility.Visible;
-            if (!(bool)cb.IsChecked) layer.Image.Visibility = Visibility.Collapsed;
-        }
-
-        #region LAYER MOVING
+        #region IMAGE MOVING
 
         private void LayerImage_MouseLeave(object sender, MouseEventArgs e)
         {
@@ -579,7 +613,7 @@ namespace RapidQA
             }
       
             if (selectedLayer.ImagePosition == null)
-                selectedLayer.ImagePosition = selectedLayer.Image.TransformToAncestor(ImageGrid).Transform(new Point(0, 0));
+                selectedLayer.ImagePosition = selectedLayer.Image.TransformToAncestor(ImageGrid).Transform(new Point(0, 0)); // Make ImagePosition to a list for saving image movement?
             var mousePosition = Mouse.GetPosition(ImageGrid);
             selectedLayer.DeltaX = mousePosition.X - selectedLayer.ImagePosition.X;
             selectedLayer.DeltaY = mousePosition.Y - selectedLayer.ImagePosition.Y;
@@ -595,31 +629,6 @@ namespace RapidQA
             selectedLayer.IsMoving = false;
         }
 
-        //private void CheckPixelTransparencey(Image img, Point p)
-        //{
-        //    int x = (int)p.X;
-        //    int y = (int)p.Y;
-
-        //    Bitmap bmpOut = null;
-
-        //    using (MemoryStream ms = new MemoryStream())
-        //    {
-        //        PngBitmapEncoder encoder = new PngBitmapEncoder();
-        //        encoder.Frames.Add(BitmapFrame.Create((BitmapSource)img.Source));
-        //        encoder.Save(ms);
-
-        //        using (Bitmap bmp = new Bitmap(ms))
-        //        {
-        //            bmpOut = new Bitmap(bmp);
-        //        }
-        //    }
-
-
-        //    var pixel = bmpOut.GetPixel(x, y); // Get pixel är tyligen väldigt långsamt ---
-        //    if (pixel.A >= 200) isOpaque = true;
-        //    else isOpaque = false;
-        //}
-
         private void LayerImage_MouseMove(object sender, MouseEventArgs e)
         {
             Cursor = Cursors.Hand;
@@ -634,7 +643,6 @@ namespace RapidQA
 
             selectedLayer.Image.RenderTransform = new TranslateTransform(-offsetX, -offsetY);            
         }
-
         #endregion
 
         #region ROW MOVING
@@ -684,7 +692,6 @@ namespace RapidQA
                 }
             }
             else return;
-
             
             if (e.Source is Grid)
             {                               
@@ -700,7 +707,7 @@ namespace RapidQA
             {
                 selectedLayer.Row.IsDown = false;
                 selectedLayer.Row.IsDragging = false;
-                selectedLayer.Row.Grid.ReleaseMouseCapture(); // error occurs if you drag an image "onto" sp and release it  
+                selectedLayer.Row.Grid.ReleaseMouseCapture();
             }
             else return;
         }
@@ -773,20 +780,5 @@ namespace RapidQA
             }
         }
         #endregion
-
-        private void BtnBlack_Click(object sender, RoutedEventArgs e)
-        {
-            ImageGrid.Background = new SolidColorBrush(Colors.Black);
-        }
-
-        private void BtnGray_Click(object sender, RoutedEventArgs e)
-        {
-            ImageGrid.Background = new SolidColorBrush(Colors.Gray);
-        }
-
-        private void BtnWhite_Click(object sender, RoutedEventArgs e)
-        {
-            ImageGrid.Background = new SolidColorBrush(Colors.White);
-        }
     }
 }

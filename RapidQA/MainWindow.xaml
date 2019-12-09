@@ -90,9 +90,9 @@
                                     <ColumnDefinition Width="1*"/>
                                     <ColumnDefinition Width="2*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBox x:Name="workarea_width" Grid.Column="0" VerticalAlignment="top" Text="1920"/>
+                                <TextBox x:Name="workarea_width" Grid.Column="0" VerticalAlignment="top" Text="0"/>
                                 <TextBlock Text="x" Grid.Column="1" VerticalAlignment="top" HorizontalAlignment="center"/>
-                                <TextBox x:Name="workarea_height" Grid.Column="2" VerticalAlignment="top" Text="1440"/>
+                                <TextBox x:Name="workarea_height" Grid.Column="2" VerticalAlignment="top" Text="0"/>
                             </Grid>
                         </StackPanel>
                     </Grid>
@@ -114,16 +114,6 @@
                                 Margin="0,0,15,0"/>
                     </Grid>
                     <Grid Grid.Row="1">
-                        <Button x:Name="BtnSaveWorkArea" 
-                                HorizontalAlignment="Right" 
-                                Content="Save Work Area" 
-                                Height="20" 
-                                VerticalAlignment="Center" 
-                                MinWidth="85" 
-                                FontSize="11"
-                                 Margin="0,0,15,0"/>
-                    </Grid>
-                    <Grid Grid.Row="2">
                         <Button x:Name="BtnSaveView" 
                                 HorizontalAlignment="Right" 
                                 Content="Save View" 
@@ -131,7 +121,17 @@
                                 VerticalAlignment="Center" 
                                 MinWidth="85" 
                                 FontSize="11"
-                                 Margin="0,0,15,0"/>
+                                Margin="0,0,15,0"/>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Button x:Name="BtnSaveWorkArea" 
+                                HorizontalAlignment="Right" 
+                                Content="Save Work Area" 
+                                Height="20" 
+                                VerticalAlignment="Center" 
+                                MinWidth="85" 
+                                FontSize="11"
+                                Margin="0,0,15,0"/>
                     </Grid>
                 </Grid>
             </Grid>
