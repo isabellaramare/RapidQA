@@ -11,6 +11,8 @@ using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
 using Color = System.Windows.Media.Color;
 using Microsoft.Win32;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace RapidQA
 {
@@ -30,7 +32,7 @@ namespace RapidQA
 
         // HIGH PRIORITY
         // config file for automatic image-to-layer distribution      https://support.microsoft.com/en-us/help/815786/how-to-store-and-retrieve-custom-information-from-an-application-confi                 
-
+        
         // BUGS
         // weird white box appears when saving view
         // Change movement info (eg. CTRL + scroll)
@@ -40,7 +42,6 @@ namespace RapidQA
         // accesskeys (press 1 for activating layer 1, ctrl + S to save image, ctrl + Z to revert image movement)
         // rename layers
         // custom made button design (eye for visibility, padlock for locking)
-        // deleting layers
         // highlight selected layer (border around image or something like that)
         // Snapping      
 
@@ -51,8 +52,6 @@ namespace RapidQA
             //mvm.LoadFiles(folderPath);  
             //selectedLayer.Image = new Image();         
             BtnAddLayer_Click(null, null);
-            //Workarea_Height_TextChanged(null, null);
-            //Workarea_Width_TextChanged(null, null);
             ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
 
             BtnAddLayer.Click += BtnAddLayer_Click;
@@ -74,6 +73,7 @@ namespace RapidQA
             scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
         
             LoadEvents();
+            
         }
 
         private void LoadEvents()

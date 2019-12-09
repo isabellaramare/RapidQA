@@ -82,3 +82,4 @@ C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\netcoreapp3.0\Rapid
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\netcoreapp3.0\RapidQA.csproj.CopyComplete
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\netcoreapp3.0\RapidQA.dll
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\netcoreapp3.0\RapidQA.pdb
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\netcoreapp3.0\RapidQA.dll.config
