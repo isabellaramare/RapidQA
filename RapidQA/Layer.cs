@@ -21,6 +21,7 @@ namespace RapidQA
         
         public Row Row { get; set; }
         public Image Image { get; set; }
+        public Border Border { get; set; }
         public Asset Asset { get; set; }
 
         public Layer()

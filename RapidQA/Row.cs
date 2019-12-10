@@ -15,6 +15,7 @@ namespace RapidQA
         public Point StartPoint { get; set; }
         //public UIElement RealDragSource { get; set; }
         public Grid Grid { get; set; }
+        public Label Label { get; set; }
         public ComboBox ComboBox { get; set; }
         public CheckBox CBVisibility { get; set; }
         public CheckBox CBLock { get; set; }
@@ -124,6 +125,7 @@ namespace RapidQA
             newRow.CBLock = cbLock;
             newRow.Button = button;
             newRow.Delete = delete;
+            newRow.Label = label;
 
             return newRow;
         }
@@ -136,9 +138,9 @@ namespace RapidQA
             combobox.VerticalAlignment = VerticalAlignment.Center;
             combobox.HorizontalAlignment = HorizontalAlignment.Left;
             combobox.Margin = new Thickness(0, 0, 0, 0);
+            combobox.ItemsSource = assets;
             layer.Row.Grid.Children.Add(combobox);
             layer.Row.ComboBox = combobox;
-            combobox.ItemsSource = assets;
             layer.Row.ComboBox.SelectedIndex = 0;
 
             // Adjust button and Checkboxes
