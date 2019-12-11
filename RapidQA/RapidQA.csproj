@@ -114,7 +114,7 @@
       <Project>{df162497-21b4-4e39-8c81-4649050a13cd}</Project>
       <Name>ImSystem</Name>
     </ProjectReference>
-    <ProjectReference Include="\\shared-fs1\transfer\Isabella\Apps\ImUI\ImUI.csproj">
+    <ProjectReference Include="..\Apps\ImUI\ImUI.csproj">
       <Project>{a340bfa4-239b-4823-a843-9ceb49a5e348}</Project>
       <Name>ImUI</Name>
     </ProjectReference>

@@ -26,7 +26,8 @@ namespace RapidQA
 
         public Layer()
         {
-            Row = new Row();           
+            Row = new Row();
+            CurrentTT = new TranslateTransform();
         }
     }
 }

@@ -9,6 +9,26 @@
         xmlns:zoom="clr-namespace:ImUI.Zoom;assembly=ImUI"
         mc:Ignorable="d"
         Title="Rapid QA" Height="700" Width="1200" MinHeight="500" MinWidth="700">
+    <Window.Resources>
+        <Style x:Key="NoHoverButton" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" BorderThickness="0" BorderBrush="Black" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.1*" MinWidth="240" MaxWidth="400"/>
@@ -69,23 +89,61 @@
 
             </StackPanel>
             <Grid Grid.Row="1">
-                <Grid Height="10" Background="Silver" VerticalAlignment="Top" Margin="10, 0, 10, 0">
+                <Grid Height="14" Background="#FF4B4B4B" VerticalAlignment="Top" Margin="10, 0, 10, 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="8*"/>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="1" FontSize="8" Margin="0,-6,0,-4" HorizontalContentAlignment="Center">V</Label>
-                    <Label Grid.Column="2" FontSize="8" Margin="0,-6,0,-4" HorizontalContentAlignment="Center">L</Label>
-                    <Label Grid.Column="3" FontSize="8" Margin="0,-6,0,-4" HorizontalContentAlignment="Center">D</Label>
+                    <Label Grid.Column="1" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">V</Label>
+                    <Label Grid.Column="2" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">L</Label>
+                    <Label Grid.Column="3" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">D</Label>
                 </Grid>
+                
                 <ScrollViewer x:Name="scrollViewer">
-                    <StackPanel x:Name="sp" Margin="10" Background="White" AllowDrop="True">
-                       
-                        <!--This is where the Rows go-->
+                    <StackPanel Background="White" Margin="10, 14, 10, 10">
+                        <StackPanel x:Name="sp" AllowDrop="True">
+                            <Grid Height="20" Background="silver" VerticalAlignment="Top">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="8*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <CheckBox x:Name="Ckb_AllVisible" Grid.Column="1" HorizontalAlignment="Center" Height="15" Margin="2,3,2,2"/>
+                                <CheckBox x:Name="Ckb_AllLocked" Grid.Column="2" HorizontalAlignment="Center" Height="15" Margin="2,3,2,2"/>
+                                <Button x:Name="Btn_DeleteAll" Content="X" Padding="0,-2,0,0" Grid.Column="3" HorizontalAlignment="Center" Width="13" Height="13"/>
+                            </Grid>
+                            <!--This is where the Rows go-->
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="10*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="BtnAddLayer"   
+                                    Grid.Column="1"                                    
+                                    Height="25" 
+                                    Padding="10,0,0,0"                                     
+                                    BorderBrush="{x:Null}"                                 
+                                    Style="{StaticResource NoHoverButton}"
+                                    Content="Add Layer +" 
+                                    HorizontalAlignment="Stretch"/>
+                            
+                        </Grid>
                     </StackPanel>
                 </ScrollViewer>
+                <Grid Height="14" Background="Silver" VerticalAlignment="bottom" Margin="10, 0, 10, 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="8*"/>
+                    </Grid.ColumnDefinitions>
+             
+                </Grid>
             </Grid>
          
 
@@ -133,14 +191,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                        <Button x:Name="BtnAddLayer" 
-                                HorizontalAlignment="Right" 
-                                Content="Add Layer" 
-                                Height="20" 
-                                VerticalAlignment="Center" 
-                                MinWidth="85" 
-                                FontSize="11"
-                                Margin="0,0,15,0"/>
+                
                     </Grid>
                     <Grid Grid.Row="1">
                         <Button x:Name="BtnSaveView" 

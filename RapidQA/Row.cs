@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace RapidQA
 {
+
     class Row
     {
+        private MainWindow mw;
         public bool IsDown { get; set; }
         public bool IsDragging { get; set; }
         public Point StartPoint { get; set; }
         //public UIElement RealDragSource { get; set; }
         public Grid Grid { get; set; }
-        public Label Label { get; set; }
+        public TextBox Label { get; set; }
         public ComboBox ComboBox { get; set; }
         public CheckBox CBVisibility { get; set; }
         public CheckBox CBLock { get; set; }
@@ -34,7 +33,7 @@ namespace RapidQA
         public Row CreateNewRow(int layerCount)
         {
             Grid grid = new Grid();
-            Label label = new Label();
+            TextBox label = new TextBox();
             CheckBox cbVis = new CheckBox();
             CheckBox cbLock = new CheckBox();
             Button button = new Button();
@@ -83,7 +82,7 @@ namespace RapidQA
             grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
 
             int numberOfLayers = layerCount;
-            label.Content = "Layer " + numberOfLayers;
+            label.Text = "Layer " + numberOfLayers;
 
             cbVis.IsChecked = true;
 
@@ -104,7 +103,10 @@ namespace RapidQA
             cbVis.IsEnabled = false;
             cbLock.IsEnabled = false;
 
-            button.Margin = new Thickness(0, 3, 0, 2);
+            label.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+            label.BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
+
+            button.Margin = new Thickness(0, 2, 0, 2);
             button.SetValue(Grid.ColumnSpanProperty, 2);
             button.Content = "Select Images...";
                          
@@ -127,6 +129,7 @@ namespace RapidQA
             newRow.Delete = delete;
             newRow.Label = label;
 
+           
             return newRow;
         }
 
@@ -153,7 +156,7 @@ namespace RapidQA
 
             layer.Row.CBVisibility.RenderTransformOrigin = new Point(3.14, 0.461);
             layer.Row.CBVisibility.IsEnabled = true;
-            layer.Row.CBLock.IsEnabled = true;
+            layer.Row.CBLock.IsEnabled = true;           
         }
     }
 }
