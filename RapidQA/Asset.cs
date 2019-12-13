@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RapidQA
 {
-    internal class Asset
+    public class Asset
     {
         // Filename instead of filepath?
         public string Filepath { get; set; }
@@ -24,6 +24,12 @@ namespace RapidQA
         public int YPosition { get; set; }
         // height
         public int XPosition { get; set; }
+
+
+        public Asset()
+        {
+
+        }
 
         public Asset(string filepath)
         {

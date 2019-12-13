@@ -40,7 +40,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="3*"/>
                 <RowDefinition Height="4"/>
-                <RowDefinition Height="1*" MinHeight="20"/>
+                <RowDefinition Height="20" MinHeight="20"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <zoom:ZoomControl x:Name="Zoom" AllowDrop="True" Background="#FF4B4B4B" VerticalAlignment="Top">
@@ -73,20 +73,33 @@
             <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"  Background="#FF303030"/>
             <!--Layers-->
             <Grid Grid.Row="2">
+                <CheckBox x:Name="CkbToggleLog" Content="Toggle Log" Width="75" VerticalContentAlignment="Bottom" FontSize="10" VerticalAlignment="Stretch" HorizontalAlignment="left" Grid.Column="0" Margin="0,2,0,2"/>
                 <log:LogTextBox x:Name="LogWindow"/>
             </Grid>
         </Grid>
 
         <Grid x:Name="GrdMenu" Grid.Column="0" Background="#FF777777">
             <Grid.RowDefinitions>
-                <RowDefinition Height="90"/>
+                <RowDefinition Height="100"/>
                 <RowDefinition />
                 <RowDefinition Height="120"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Vertical">
                 <Label Content="Quality Assurance" Background="#FF202020" Height="50" VerticalContentAlignment="Center" Padding="30,0" FontSize="18" FontWeight="Bold" Foreground="WhiteSmoke"/>
                 <!--<browse:Browser x:Name="BrwRootDir" BrowseFolder="True" Label="Browse folder" LabelWidth="100" Margin="10,10,20,10" Width="200" HorizontalAlignment="Left" Height="25"/>-->
-
+                <Label Padding="0,2,0,4" Margin="10,0,0,0">Layer Positions</Label>
+                <StackPanel Height="20" Margin="10,0,10,0" Orientation="Horizontal">
+                    <Button x:Name="BtnSave" 
+                                HorizontalAlignment="Right" 
+                                Content="Save"                                
+                                VerticalAlignment="Center" 
+                                MinWidth="80"/>
+                    <Button x:Name="BtnLoad" 
+                                HorizontalAlignment="Right" 
+                                Content="Load"                                
+                                VerticalAlignment="Center" 
+                                MinWidth="80"/>
+                </StackPanel>
             </StackPanel>
             <Grid Grid.Row="1">
                 <Grid Height="14" Background="#FF4B4B4B" VerticalAlignment="Top" Margin="10, 0, 10, 0">
@@ -100,7 +113,7 @@
                     <Label Grid.Column="2" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">L</Label>
                     <Label Grid.Column="3" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">D</Label>
                 </Grid>
-                
+
                 <ScrollViewer x:Name="scrollViewer">
                     <StackPanel Background="White" Margin="10, 14, 10, 10">
                         <StackPanel x:Name="sp" AllowDrop="True">
@@ -131,21 +144,11 @@
                                     Style="{StaticResource NoHoverButton}"
                                     Content="Add Layer +" 
                                     HorizontalAlignment="Stretch"/>
-                            
+
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>
-                <Grid Height="14" Background="Silver" VerticalAlignment="bottom" Margin="10, 0, 10, 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="8*"/>
-                    </Grid.ColumnDefinitions>
-             
-                </Grid>
             </Grid>
-         
 
             <Grid Grid.Row="2" Margin="10">
                 <Grid.ColumnDefinitions>
@@ -191,7 +194,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                
+                    
                     </Grid>
                     <Grid Grid.Row="1">
                         <Button x:Name="BtnSaveView" 

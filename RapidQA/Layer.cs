@@ -4,13 +4,15 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Xml.Serialization;
 
 namespace RapidQA
-{
-    internal class Layer
+{    
+    public class Layer
     {
         public bool IsLocked { get; set; }
-        public bool IsSelected { get; set; }
+        public string Name { get; set; }
+
         
         // Layer moving
         public bool IsMoving { get; set; }
@@ -19,15 +21,19 @@ namespace RapidQA
         public double DeltaY { get; set; }
         public TranslateTransform CurrentTT { get; set; }
         
+        [XmlIgnore]
         public Row Row { get; set; }
+        [XmlIgnore]
         public Image Image { get; set; }
+        [XmlIgnore]
         public Border Border { get; set; }
-        public Asset Asset { get; set; }
 
+        public List<Asset> Assets { get; set; } = new List<Asset>();
+ 
         public Layer()
         {
             Row = new Row();
-            CurrentTT = new TranslateTransform();
+            CurrentTT = new TranslateTransform(0, 0);
         }
     }
 }

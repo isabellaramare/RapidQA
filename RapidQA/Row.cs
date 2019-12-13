@@ -6,9 +6,8 @@ using System.Windows.Media;
 namespace RapidQA
 {
 
-    class Row
-    {
-        private MainWindow mw;
+    public class Row
+    {        
         public bool IsDown { get; set; }
         public bool IsDragging { get; set; }
         public Point StartPoint { get; set; }
@@ -82,7 +81,7 @@ namespace RapidQA
             grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
 
             int numberOfLayers = layerCount;
-            label.Text = "Layer " + numberOfLayers;
+            label.Text = "Layer " + (numberOfLayers + 1);
 
             cbVis.IsChecked = true;
 
