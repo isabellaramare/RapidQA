@@ -16,6 +16,8 @@ using System.Configuration;
 using System.Collections.Specialized;
 using ImSystem.Log;
 using System.Xml.Serialization;
+using System.Threading;
+using System.ComponentModel;
 
 namespace RapidQA
 {
@@ -29,13 +31,11 @@ namespace RapidQA
 
         //readonly MainViewModel mvm = new MainViewModel();
         List<Layer> layers = new List<Layer>();
-        List<Layer> ctrlZ = new List<Layer>(); // Warning! "infinite" lenght!
      
-        Dictionary<Layer, List<Point>> Undo = new Dictionary<Layer, List<Point>>();
+        Dictionary<Layer, List<Point>> Undo = new Dictionary<Layer, List<Point>>(); // Infinite!
         Dictionary<Layer, List<Point>> Redo = new Dictionary<Layer, List<Point>>();
 
-
-
+        List<Asset> selectedAssets = new List<Asset>();
         Row row = new Row();
         string fileDirectory;
         private int layerCount = 0;
@@ -73,15 +73,7 @@ namespace RapidQA
             //DataContext = mvm;
             //mvm.LoadFiles(folderPath);          
             Log = LogWindow.Log;
-            Log.AddInfo("Application loaded");     // HOTKEYS declaration should be available in some good place       
-            Log.AddHeader("HOTKEYS");
-            Log.AddInfo("Middle Mouse Button + Drag to pan");
-            Log.AddInfo("CTRL + Scroll to zoom");
-            Log.AddInfo("CTRL + S to save workarea");
-            Log.AddInfo("CTRL + L to add a layer");
-            Log.AddInfo("DEL to delete selected layer");
-            Log.AddInfo("Hold Y to move image vertically");
-            Log.AddInfo("Hold X to move image horizontally");
+            Log.AddInfo("Application loaded");         
 
             ImageGrid.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
             BtnAddLayer_Click(null, null);
@@ -118,13 +110,33 @@ namespace RapidQA
             scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;    
         }
 
+        bool showInfo = false;
         private void BtnInfo_Click(object sender, RoutedEventArgs e)
         {
-            // Popup with info (Hotkeys and such)
-
-
-            // change background color
-            BtnInfo.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
+            if (showInfo)
+            {
+                BorderInfo.Visibility = Visibility.Collapsed;
+                showInfo = false;
+            }
+            else
+            {
+                showInfo = true;
+                BorderInfo.Visibility = Visibility.Visible;
+                TxtInfo.Text =
+                "HOTKEYS\n" +
+                "Middle Mouse Button + Drag to pan\n" +
+                "CTRL + Scroll to zoom\n" +
+                "CTRL + S to save workarea\n" +
+                "CTRL + L to add a layer\n" +
+                "DEL to delete selected layer\n" +
+                "Hold Y to move image vertically\n" +
+                "Hold X to move image horizontally\n" +
+                "CTRL + Z to undo\n" +
+                "CTRL + Y to redo\n" +
+                "Press 1-9 to select layers"; 
+            }
+            
+            //BtnInfo.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
         }
 
         private void BtnLoad_Click(object sender, RoutedEventArgs e)
@@ -231,53 +243,51 @@ namespace RapidQA
         #region HOTKEYS
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            //if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-            //{
-            switch (e.Key)
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                // Step back
-                case Key.Z:
-                    if (Undo[selectedLayer].Count() == 0) return;
-                    var c = Undo[selectedLayer].Count;
+                switch (e.Key)
+                {
+                    // Step back
+                    case Key.Z:
+                        if (Undo[selectedLayer].Count() == 0) return;
+                        var c = Undo[selectedLayer].Count;
 
-                    // sends the last/current position to Redo
-                    var forRedo = Undo[selectedLayer].Last();
+                        // sends the last/current position to Redo
+                        var forRedo = Undo[selectedLayer].Last();
 
-                    if (Redo.ContainsKey(selectedLayer))
-                    {
-                        if (Redo[selectedLayer].Last().Equals(forRedo)) return;                                   
-                        else Redo[selectedLayer].Add(forRedo);
-                    }
-                    else
-                    {
-                        Redo.Add(selectedLayer, new List<Point>() { forRedo });
-                    }
+                        if (Redo.ContainsKey(selectedLayer))
+                        {                        
+                            Redo[selectedLayer].Add(forRedo);
+                        }
+                        else
+                        {
+                            Redo.Add(selectedLayer, new List<Point>() { forRedo });
+                        }
 
-                    // And removes it from undo
-                    Undo[selectedLayer].RemoveAt(c - 1);
+                        // And removes it from undo
+                        Undo[selectedLayer].RemoveAt(c - 1);
 
-                    // Moves the layer to the second to last (now last) position 
-                    if (Undo[selectedLayer].Count() == 0) return;
-                    var lastPos = Undo[selectedLayer].Last(); 
-                    selectedLayer.Border.RenderTransform = new TranslateTransform(lastPos.X, lastPos.Y);
-                    selectedLayer.CurrentTT = new TranslateTransform(lastPos.X, lastPos.Y);
-                    break;
+                        // Moves the layer to the second to last (now last) position 
+                        if (Undo[selectedLayer].Count() == 0) return;
+                        var lastPos = Undo[selectedLayer].Last(); 
+                        selectedLayer.Border.RenderTransform = new TranslateTransform(lastPos.X, lastPos.Y);
+                        selectedLayer.CurrentTT = new TranslateTransform(lastPos.X, lastPos.Y);
+                        break;
 
 
                     // Go forward => needs work
-                case Key.Y:
-                    if (Redo[selectedLayer].Count() == 0) return;
-                    var count = Redo[selectedLayer].Count;
-                    var forUndo = Redo[selectedLayer].Last();
-                
-                    Undo[selectedLayer].Add(forUndo);
+                    case Key.Y:
+                        if (Redo[selectedLayer].Count() == 0) return;
+                        var count = Redo[selectedLayer].Count;
+                        var forUndo = Redo[selectedLayer].Last();                
+                        Undo[selectedLayer].Add(forUndo);
                  
-                    if (Redo[selectedLayer].Count() == 0) return;
-                    //Undo[selectedLayer].RemoveAt(count - 1);
-                    var lP = Redo[selectedLayer].Last();
-                    selectedLayer.Border.RenderTransform = new TranslateTransform(lP.X, lP.Y);
+                        if (Redo[selectedLayer].Count() == 0) return;
+                        var lP = Redo[selectedLayer].Last();
+                        selectedLayer.Border.RenderTransform = new TranslateTransform(lP.X, lP.Y);
 
-                    break;
+                        Redo[selectedLayer].RemoveAt(count - 1);
+                        break;
 
                     // Add new layer
                     case Key.L:
@@ -289,7 +299,7 @@ namespace RapidQA
                         BtnSaveWorkArea_Click(null, null);
                         break;
                 }
-            //}
+            }
 
             switch (e.Key)
             {
@@ -523,14 +533,21 @@ namespace RapidQA
        
         private void Btn_SelectImages_Click(object sender, RoutedEventArgs e, Layer layer)
         {
+            //BackgroundWorker worker = new BackgroundWorker();
+            //worker.WorkerReportsProgress = true;
+            //worker.DoWork += Worker_DoWork;
+            //worker.ProgressChanged += Worker_ProgressChanged;
+            //worker.RunWorkerAsync();
+
             if (layer.Image is null)
             {
-                List<Asset> assets = SelectImages();
-                if (assets.Count > 0)
+                SelectImages();
+                //worker.RunWorkerAsync();                
+                if (selectedAssets.Count > 0)
                 {
-                    row.AddRowComponents(layer, assets);
+                    row.AddRowComponents(layer, selectedAssets);
                     ComboBox cb = layer.Row.ComboBox;
-                    layer.Assets = assets;
+                    layer.Assets = selectedAssets;
                     cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) { Cbx_SelectionChanged(s, ev, layer); };
                     AddNewImage(layer);
                 }
@@ -538,49 +555,84 @@ namespace RapidQA
             else
             {
                 imagesUpdated = true;
-                layer.Row.ComboBox.ItemsSource = SelectImages();
+                SelectImages();
+                //worker.RunWorkerAsync();
+                layer.Assets = selectedAssets;
+                layer.Row.ComboBox.ItemsSource = selectedAssets; 
                 layer.Row.ComboBox.SelectedIndex = 0;
                 ChangeImageFilepath(layer);                
             }
-
             imagesUpdated = false;
             MakeLayerSelected(layer);          
         }
 
-        private List<Asset> SelectImages()
-        {
-            // Get the image files from the user.
-            var openDlg = new Microsoft.Win32.OpenFileDialog();
-
+        OpenFileDialog openDlg = new Microsoft.Win32.OpenFileDialog();
+        private void SelectImages()
+        {          
+            // Get the image files from the user.            
             openDlg.Filter = "Image files(*.PNG;*.JPG;*.JPEG;*.TIFF)|*.PNG;*.JPG;*.JPEG;*.TIFF|All files (*.*)|*.*";
             if (fileDirectory == null) openDlg.InitialDirectory = "c:\\";
             if (fileDirectory != null) openDlg.InitialDirectory = fileDirectory;
             openDlg.Multiselect = true;
 
+            //openDlg.FileOk += OpenDlg_FileOk;               
             bool? result = openDlg.ShowDialog(this);
-
             string[] selectedFiles = openDlg.FileNames;
 
-            List<Asset> assets = new List<Asset>();
+            selectedAssets.Clear();
             foreach (string filepath in selectedFiles)
             {
-                assets.Add(new Asset(filepath));
-                Log.AddSuccess("Loaded Image - " + filepath);                
+                selectedAssets.Add(new Asset(filepath));
+                Log.AddSuccess("Loaded Image - " + filepath);
             }
 
             // Saves the directory that was used last
-            if (assets.Count > 0)
+            if (selectedAssets.Count > 0)
             {
-                fileDirectory = new FileInfo(assets[0].Filepath).Directory.FullName;
+                fileDirectory = new FileInfo(selectedAssets[0].Filepath).Directory.FullName;
                 Log.AddInfo("Saved Directory " + fileDirectory);
             }
 
-            return assets;
+            if (result != true) return;
         }
+
+        //void Worker_DoWork(object sender, DoWorkEventArgs e)
+        //{
+        //    for (int i = 0; i < 100; i++)
+        //    {
+        //        (sender as BackgroundWorker).ReportProgress(i);
+        //        Thread.Sleep(50);                
+        //    }
+        //}
+
+        //void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        //{
+        //    pbStatus.Value = e.ProgressPercentage;
+           
+        //}
+
+        //private void OpenDlg_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        //{
+        //    BackgroundWorker worker = new BackgroundWorker();
+        //    worker.WorkerReportsProgress = true;
+        //    worker.DoWork += Worker_DoWork;
+        //    worker.ProgressChanged += Worker_ProgressChanged;
+        //    worker.RunWorkerAsync();
+
+        //TODO: Limit image selection, add some kind of loading bar
+        //    if (selectedFiles.Length > 20)
+        //    {
+        //        MessageBoxResult result = MessageBox.Show("Chose a maximum of 20 images", "Images", MessageBoxButton.OK, MessageBoxImage.Warning);
+        //        if (result == MessageBoxResult.OK)
+        //        {
+
+        //        }
+        //    }
+        //}
 
         private void ChangeImageFilepath(Layer layer)
         {            
-            Asset selectedItem = (Asset)layer.Row.ComboBox.SelectedItem;
+            Asset selectedItem = layer.Assets[0];
             var uriSource = new Uri(selectedItem.Filepath);
             layer.Image.Source = new BitmapImage(uriSource);
 
@@ -594,15 +646,6 @@ namespace RapidQA
             layers.Add(layer);
             AddLayer(layer);
             MakeLayerSelected(layer);
-
-            //Row newRow = row.CreateNewRow(layerCount);
-            //layerCount += 1;
-            //sp.Children.Add(newRow.Grid);
-            //layer.Row = newRow;
-            //AddEvents(layer);                       
-            //layers.Add(layer);
-            //Log.AddInfo("Created  " + layer.Row.Label.Text.ToString());
-            //MakeLayerSelected(layer);  
         }
 
         private void AddLayer(Layer layer)
@@ -611,18 +654,15 @@ namespace RapidQA
             layerCount += 1;
             sp.Children.Add(newRow.Grid);
             layer.Row = newRow;
-            if (layer.Name == null) layer.Name = layer.Row.Label.Text; //???
+            if (layer.Name == null) layer.Name = layer.Row.Label.Text;
             else layer.Row.Label.Text = layer.Name;
-            //layer.Row.Label.TextChanged += Label_TextChanged;
             AddEvents(layer);            
-            Log.AddInfo("Created  " + layer.Row.Label.Text.ToString());       
+            Log.AddInfo("Created  " + layer.Name);       
         }
 
         private void Label_TextChanged(object sender, TextChangedEventArgs e, Layer l)
         {
-            // TODO: Save Label.Text at layer.Name
-            l.Name = l.Row.Label.Text;
-            
+            l.Name = l.Row.Label.Text;            
         }
 
         private void AddEvents(Layer layer)

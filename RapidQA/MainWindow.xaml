@@ -28,9 +28,10 @@
             </Setter>
         </Style>
     </Window.Resources>
+  
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.1*" MinWidth="240" MaxWidth="400"/>
+            <ColumnDefinition Width="1.1*" MinWidth="5" MaxWidth="400"/>
             <ColumnDefinition Width="4"/>
             <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
@@ -41,8 +42,13 @@
                 <RowDefinition Height="4"/>
                 <RowDefinition Height="20" MinHeight="20"/>
             </Grid.RowDefinitions>
+           
             <Grid Grid.Row="0">
-                <zoom:ZoomControl x:Name="Zoom" AllowDrop="True" Background="#FF4B4B4B" VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="29*"/>
+                    <RowDefinition Height="186*"/>
+                </Grid.RowDefinitions>
+                <zoom:ZoomControl x:Name="Zoom" AllowDrop="True" Background="#FF4B4B4B" VerticalAlignment="Top" Grid.RowSpan="2">
                     <Grid x:Name="ImageGrid" Background="White">
                         <Image RenderOptions.BitmapScalingMode="NearestNeighbor" x:Name="ZoomImage" 
                                Source="{Binding ElementName=ImageZoom, Path=Source}" 
@@ -52,7 +58,8 @@
                                SnapsToDevicePixels="False" />
                     </Grid>
                 </zoom:ZoomControl>
-                <Border Background="#FF343434" BorderThickness="0" Grid.Column="4" Height="30" HorizontalAlignment="Left" Margin="15,0,0,12" x:Name="border2" VerticalAlignment="Bottom" Width="214" CornerRadius="10" BorderBrush="#FF343434" Grid.Row="1">
+
+                <Border Background="#CC343434" BorderThickness="0" Height="30" HorizontalAlignment="Left" Margin="15,0,0,12" x:Name="border2" VerticalAlignment="Bottom" Width="214" CornerRadius="10" BorderBrush="#FF343434" Grid.Row="1">
                     <Grid Width="200">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="76*" />
@@ -70,6 +77,9 @@
 
             </Grid>
             <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"  Background="#FF303030"/>
+            <!--<Grid Margin="20" Height="30" Width="100">
+                <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" />
+            </Grid>-->
             <!--Layers-->
             <Grid Grid.Row="2">
                 <CheckBox x:Name="CkbToggleLog" Content="Toggle Log" Width="75" VerticalContentAlignment="Bottom" FontSize="10" VerticalAlignment="Stretch" HorizontalAlignment="left" Grid.Column="0" Margin="0,2,0,2"/>
@@ -109,9 +119,15 @@
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center" 
                             MinWidth="20" 
-                            Background="#FFFFE800"/>
+                            Background="#FFFFE800" 
+                            FontWeight="Bold" FontStyle="Italic"/>
                 </Grid>
             </StackPanel>
+            <Border x:Name="BorderInfo" CornerRadius="10"  Background="#CA343434" HorizontalAlignment="Right" Width="230" Margin="0,15,-248,200" Grid.RowSpan="2" Visibility="Collapsed">
+                <TextBlock x:Name="TxtInfo" Padding="12" Foreground="White" TextWrapping="Wrap" LineHeight="20">
+        
+                </TextBlock>
+            </Border>
             <Grid Grid.Row="1">
                 <Grid Height="14" Background="#FF4B4B4B" VerticalAlignment="Top" Margin="10, 0, 10, 0">
                     <Grid.ColumnDefinitions>
@@ -178,7 +194,7 @@
                         </StackPanel>
                     </Grid>
                     <Grid Grid.Row="1">
-                        
+
                     </Grid>
                     <Grid Grid.Row="2" Margin="0,5,0,0">
                         <StackPanel>
@@ -205,7 +221,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
-                    
+
                     </Grid>
                     <Grid Grid.Row="1">
                         <Button x:Name="BtnSaveView" 
