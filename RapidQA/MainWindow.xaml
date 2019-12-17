@@ -7,7 +7,7 @@
         xmlns:colorpicker="clr-namespace:ImUI.ColorPicker;assembly=ImUI"
         xmlns:zoom="clr-namespace:ImUI.Zoom;assembly=ImUI"
         mc:Ignorable="d"
-        Title="Rapid QA" Height="700" Width="1200" MinHeight="500" MinWidth="700">
+        Title="Rapid QA" Height="700" Width="1200" MinHeight="500" MinWidth="100">
     <Window.Resources>
         <Style x:Key="NoHoverButton" TargetType="Button">
             <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -29,7 +29,7 @@
         </Style>
     </Window.Resources>
   
-    <Grid>
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.1*" MinWidth="5" MaxWidth="400"/>
             <ColumnDefinition Width="4"/>
@@ -42,7 +42,7 @@
                 <RowDefinition Height="4"/>
                 <RowDefinition Height="20" MinHeight="20"/>
             </Grid.RowDefinitions>
-           
+
             <Grid Grid.Row="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="29*"/>
@@ -58,7 +58,16 @@
                                SnapsToDevicePixels="False" />
                     </Grid>
                 </zoom:ZoomControl>
-
+                <Button x:Name="BtnExpand"                              
+                            Content="[ ]"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top" 
+                            MinWidth="20" 
+                            Background="#FFFFE800" 
+                            Margin="5"
+                            Padding="0,0,0,3"
+                            FontWeight="Bold"/>
+                
                 <Border Background="#CC343434" BorderThickness="0" Height="30" HorizontalAlignment="Left" Margin="15,0,0,12" x:Name="border2" VerticalAlignment="Bottom" Width="214" CornerRadius="10" BorderBrush="#FF343434" Grid.Row="1">
                     <Grid Width="200">
                         <Grid.ColumnDefinitions>
@@ -246,7 +255,7 @@
                 </Grid>
             </Grid>
         </Grid>
-        <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"  Background="#FF303030"/>
+        <GridSplitter x:Name="Splitter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"  Background="#FF303030"/>
     </Grid>
 </Window>
     

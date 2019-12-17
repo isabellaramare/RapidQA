@@ -52,7 +52,11 @@ namespace RapidQA
         // BUGS
         // weird white box appears when saving view
         // Change movement info (eg. CTRL + scroll)
-        // ctrl+Z works kinda but not ctrl+Y
+        // if a layer with larger images is removed the size of the workspace will stay this size when you import smaller images
+        // All layers show the name of the same image??? (andrea)
+        // Easier to change image size (weird at the moment)
+        // info button should be green like in the other tools
+        // Moving an image should be possilble when touching anywhere (event if its see through)
 
         // EXTRAS         
         // custom made button design (eye for visibility, padlock for locking)
@@ -61,6 +65,8 @@ namespace RapidQA
         // Rows should be possible to grab anywhere or atleast more obvious    
         // Make several layers be selected at once
         // Gridsplitter so that layerlabel can be scalable
+        // If mainwindow closes - close expanded window to
+        // "Load" is percieved as the button to press - load also makes the program crash if you cancel.
 
         // QUESTIONS FOR USERS
         // Should 1, 2, 3 (and so on) select layers in the order they were created or in the order they are stacked?
@@ -84,13 +90,15 @@ namespace RapidQA
             BtnSave.Click += BtnSave_Click;
             BtnLoad.Click += BtnLoad_Click;
             BtnInfo.Click += BtnInfo_Click;
-
+            BtnExpand.Click += BtnExpand_Click;
             Btn_DeleteAll.Click += Btn_DeleteAll_Click;
+
             Ckb_AllVisible.Click += Ckb_AllVisible_Click;
             Ckb_AllLocked.Click += Ckb_AllLocked_Click;
             Ckb_AllVisible.IsChecked = true;
             Ckb_AllVisible.IsEnabled = false;         
             Ckb_AllLocked.IsEnabled = false;
+            CkbToggleLog.Click += CkbToggleLog_Click;
 
             ClrPcker_Background.ColorChanged += ClrPcker_Background_ColorChanged;
             workarea_width.TextChanged += Workarea_Width_TextChanged;
@@ -105,9 +113,51 @@ namespace RapidQA
             Zoom.MouseMove += Zoom_MouseMove;
             this.PreviewKeyDown += MainWindow_PreviewKeyDown;
             this.KeyUp += MainWindow_KeyUp;
-            CkbToggleLog.Click += CkbToggleLog_Click;
+            this.Closed += MainWindow_Closed;
 
             scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;    
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            window.Close();
+        }
+
+        Window window;
+        bool isExpanded = false;
+        private void BtnExpand_Click(object sender, RoutedEventArgs e)
+        {
+            window = new Window();        
+            window.Closed += Window_Closed;
+            if (isExpanded)
+            {
+                BtnExpand.Content = "[ ]";
+                var content = window.Content;
+                window.Content = null;        
+                MainGrid.Children.Add(GridImages);
+                window.Hide();
+                isExpanded = false;
+                GrdMenu.SetValue(Grid.ColumnSpanProperty, 1);
+                Splitter.Visibility = Visibility.Visible;               
+                this.Width = 1200;
+            }
+
+            else
+            {                
+                MainGrid.Children.Remove(GridImages);
+                window.Content = GridImages;
+                BtnExpand.Content = "[]";
+                window.Show();
+                isExpanded = true;
+                GrdMenu.SetValue(Grid.ColumnSpanProperty, 3);
+                Splitter.Visibility = Visibility.Collapsed;
+                this.Width = 300;
+            }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            BtnExpand_Click(null, null);
         }
 
         bool showInfo = false;
@@ -135,8 +185,6 @@ namespace RapidQA
                 "CTRL + Y to redo\n" +
                 "Press 1-9 to select layers"; 
             }
-            
-            //BtnInfo.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
         }
 
         private void BtnLoad_Click(object sender, RoutedEventArgs e)
@@ -152,6 +200,7 @@ namespace RapidQA
             // Add messagebox - Save (existing layers), Cancel, Continue => in this case, also remove old layers when loading
 
             bool? result = dialog.ShowDialog(this);
+            if (dialog.FileName == "") return;
 
             LoadLayerPositions(dialog.FileName);
         }
@@ -434,8 +483,10 @@ namespace RapidQA
                 {
                     DeleteLayer(l);
                 }
-
+           
                 layers.Clear();
+                workarea_height.Text = "0";
+                workarea_width.Text = "0";
             }
         }
 
@@ -533,111 +584,70 @@ namespace RapidQA
        
         private void Btn_SelectImages_Click(object sender, RoutedEventArgs e, Layer layer)
         {
-            //BackgroundWorker worker = new BackgroundWorker();
-            //worker.WorkerReportsProgress = true;
-            //worker.DoWork += Worker_DoWork;
-            //worker.ProgressChanged += Worker_ProgressChanged;
-            //worker.RunWorkerAsync();
-
             if (layer.Image is null)
             {
-                SelectImages();
-                //worker.RunWorkerAsync();                
-                if (selectedAssets.Count > 0)
+                List<Asset> assets = SelectImages();
+                if (assets.Count > 0)
                 {
-                    row.AddRowComponents(layer, selectedAssets);
+                    row.AddRowComponents(layer, assets);
                     ComboBox cb = layer.Row.ComboBox;
-                    layer.Assets = selectedAssets;
+                    layer.Assets = assets;
                     cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) { Cbx_SelectionChanged(s, ev, layer); };
                     AddNewImage(layer);
                 }
-            } 
+            }
             else
             {
                 imagesUpdated = true;
-                SelectImages();
-                //worker.RunWorkerAsync();
-                layer.Assets = selectedAssets;
-                layer.Row.ComboBox.ItemsSource = selectedAssets; 
+                layer.Row.ComboBox.ItemsSource = SelectImages();
                 layer.Row.ComboBox.SelectedIndex = 0;
-                ChangeImageFilepath(layer);                
+                ChangeImageFilepath(layer);
             }
+
             imagesUpdated = false;
-            MakeLayerSelected(layer);          
+            MakeLayerSelected(layer);
         }
 
         OpenFileDialog openDlg = new Microsoft.Win32.OpenFileDialog();
-        private void SelectImages()
-        {          
-            // Get the image files from the user.            
+        private List<Asset> SelectImages()
+        {
+            // Get the image files from the user.
+            var openDlg = new Microsoft.Win32.OpenFileDialog();
+
             openDlg.Filter = "Image files(*.PNG;*.JPG;*.JPEG;*.TIFF)|*.PNG;*.JPG;*.JPEG;*.TIFF|All files (*.*)|*.*";
             if (fileDirectory == null) openDlg.InitialDirectory = "c:\\";
             if (fileDirectory != null) openDlg.InitialDirectory = fileDirectory;
             openDlg.Multiselect = true;
 
-            //openDlg.FileOk += OpenDlg_FileOk;               
             bool? result = openDlg.ShowDialog(this);
+
             string[] selectedFiles = openDlg.FileNames;
 
-            selectedAssets.Clear();
+            List<Asset> assets = new List<Asset>();
             foreach (string filepath in selectedFiles)
             {
-                selectedAssets.Add(new Asset(filepath));
+                assets.Add(new Asset(filepath));
                 Log.AddSuccess("Loaded Image - " + filepath);
             }
 
             // Saves the directory that was used last
-            if (selectedAssets.Count > 0)
+            if (assets.Count > 0)
             {
-                fileDirectory = new FileInfo(selectedAssets[0].Filepath).Directory.FullName;
+                fileDirectory = new FileInfo(assets[0].Filepath).Directory.FullName;
                 Log.AddInfo("Saved Directory " + fileDirectory);
             }
 
-            if (result != true) return;
+            return assets;
         }
 
-        //void Worker_DoWork(object sender, DoWorkEventArgs e)
-        //{
-        //    for (int i = 0; i < 100; i++)
-        //    {
-        //        (sender as BackgroundWorker).ReportProgress(i);
-        //        Thread.Sleep(50);                
-        //    }
-        //}
-
-        //void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        //{
-        //    pbStatus.Value = e.ProgressPercentage;
-           
-        //}
-
-        //private void OpenDlg_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
-        //{
-        //    BackgroundWorker worker = new BackgroundWorker();
-        //    worker.WorkerReportsProgress = true;
-        //    worker.DoWork += Worker_DoWork;
-        //    worker.ProgressChanged += Worker_ProgressChanged;
-        //    worker.RunWorkerAsync();
-
-        //TODO: Limit image selection, add some kind of loading bar
-        //    if (selectedFiles.Length > 20)
-        //    {
-        //        MessageBoxResult result = MessageBox.Show("Chose a maximum of 20 images", "Images", MessageBoxButton.OK, MessageBoxImage.Warning);
-        //        if (result == MessageBoxResult.OK)
-        //        {
-
-        //        }
-        //    }
-        //}
-
         private void ChangeImageFilepath(Layer layer)
-        {            
-            Asset selectedItem = layer.Assets[0];
+        {
+            Asset selectedItem = (Asset)layer.Row.ComboBox.SelectedItem;
             var uriSource = new Uri(selectedItem.Filepath);
             layer.Image.Source = new BitmapImage(uriSource);
 
             Workarea_Height_TextChanged(null, null);
-            Workarea_Width_TextChanged(null, null);            
+            Workarea_Width_TextChanged(null, null);
         }      
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
