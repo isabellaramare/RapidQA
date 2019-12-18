@@ -127,7 +127,6 @@ namespace RapidQA
             newRow.Button = button;
             newRow.Delete = delete;
             newRow.Label = label;
-
            
             return newRow;
         }
