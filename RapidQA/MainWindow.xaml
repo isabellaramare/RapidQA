@@ -236,13 +236,13 @@
                 </Grid.ColumnDefinitions>
                 <Button x:Name="BtnSave"   
                                 Grid.Column="0"
-                                Content="Save File"                                
+                                Content="Save Preset"                                
                                 VerticalAlignment="Center" 
                                 MinWidth="80"
                                 MaxWidth="100"/>
                 <Button x:Name="BtnLoad"
                                 Grid.Column="1"
-                                Content="Load File"                                
+                                Content="Load Preset"                                
                                 VerticalAlignment="Center" 
                                 MinWidth="80"
                                 MaxWidth="100"/>

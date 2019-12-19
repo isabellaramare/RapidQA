@@ -41,28 +41,29 @@ namespace RapidQA
         private Layer selectedLayer = new Layer();
         private bool moveXAxis;
         private bool moveYAxis;
+        private bool snapping = false;
 
         // HIGH PRIORITY
         // config file for automatic image-to-layer distribution https://support.microsoft.com/en-us/help/815786/how-to-store-and-retrieve-custom-information-from-an-application-confi                     
 
         // BUGS
         // weird white box appears when saving view
-        // Change movement info - eg. CTRL + scroll (not possible...)
         // All layers show the name of the same image??? (andrea)
+        // prevent selected layer from moving when navigating in combobox
 
         // EXTRAS         
         // custom made button design (eye for visibility, padlock for locking)
         // different colors for layers
-        // Snapping      
-        // Rows should be possible to grab anywhere or atleast more obvious    
+        // Snapping      => kinda works but the layers snap to different "grids"...
+        // Row grabbing is more obvious    
         // Make several layers be selectable at once
         // Gridsplitter so that layerlabel can be scalable
-        // "Load" is percieved as the button to press
+        // When pressing "Load" should you be asked to save existing layers before or after chosing files to load?
+        // Display preset-file name somewhere
 
         // QUESTIONS FOR USERS
         // What function should be called for ctrl+S?
         // Should existing layers be deleted when you load? yes, but save the old ones
-
 
         public MainWindow()
         {
@@ -107,8 +108,6 @@ namespace RapidQA
 
             scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;    
         }
-
-   
 
         private void AddEvents(Layer layer)
         {
@@ -168,6 +167,7 @@ namespace RapidQA
                 "Press 1-9 to select layers\n" +
                 "Press L to toggle Log\n" +
                 "Press Q to reset image position\n" +
+                "Hold Z for snapping\n" +
                 "Press I to toggle this"; 
             }
         }
@@ -316,7 +316,6 @@ namespace RapidQA
                     cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) 
                     { Cbx_SelectionChanged(s, ev, layer); };
                     AddImage(layer);
-                    //layer.CurrentTT = new TranslateTransform(0,0);
                 }
             }
             else
@@ -327,13 +326,10 @@ namespace RapidQA
                 {
                     layer.Row.ComboBox.ItemsSource = assets;
                     layer.Row.ComboBox.SelectedIndex = 0;
-                    //AddImage(layer);
-                    //layer.Border.RenderTransform = new TranslateTransform(layer.CurrentTT.X, layer.CurrentTT.Y);
                     ChangeImageFilepath(layer);
-                    //SaveImagePosition();
+
                 }              
             }
-
             imagesUpdated = false;
             MakeLayerSelected(layer);
         }
@@ -344,6 +340,9 @@ namespace RapidQA
             Asset selectedItem = (Asset)layer.Row.ComboBox.SelectedItem;
             var uriSource = new Uri(selectedItem.Filepath);
             layer.Image.Source = new BitmapImage(uriSource);
+
+            layer.Border.Width = selectedLayer.Image.Source.Width;
+            layer.Border.Height = selectedLayer.Image.Source.Height;
         }      
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
@@ -415,14 +414,13 @@ namespace RapidQA
             Ckb_AllVisible.IsEnabled = true;
             Ckb_AllLocked.IsEnabled = true;
 
-            layer.Border.Width = selectedLayer.Image.Source.Width;
-            layer.Border.Height = selectedLayer.Image.Source.Height;
+            layer.Border.Width = layer.Image.Source.Width;
+            layer.Border.Height = layer.Image.Source.Height;
         }
 
         private void Cbx_SelectionChanged(object sender, SelectionChangedEventArgs e, Layer layer)
         {
             if (imagesUpdated) return;
-            //AddImage(layer);
             ChangeImageFilepath(layer);
             SetLayerVisibility(layer);
         }
@@ -550,10 +548,16 @@ namespace RapidQA
         {
             moveXAxis = false;
             moveYAxis = false;
+            snapping = false;
         }
 
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+
+            if (Keyboard.IsKeyDown(Key.Z))
+            {
+                snapping = true;
+            }
 
             if (Keyboard.IsKeyDown(Key.Q))
             {
@@ -696,7 +700,7 @@ namespace RapidQA
                 // nudgeing lenght
                 int pixels = 5;
 
-                if (selectedLayer.Border != null && !isFocused && !selectedLayer.IsLocked && selectedLayer.CurrentTT != null)
+                if (selectedLayer.Border != null && !isFocused && !selectedLayer.IsLocked && selectedLayer.CurrentTT != null) // <= Not working
                 {
                     if (Keyboard.IsKeyDown(Key.Left))
                     {
@@ -897,20 +901,50 @@ namespace RapidQA
 
         private void BtnLoad_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog
+            MessageBoxResult result = MessageBox.Show(
+               "Save existing layers?",
+               "Save Layers?",
+               MessageBoxButton.YesNoCancel,
+               MessageBoxImage.Question,
+               MessageBoxResult.No);
+
+            if (result == MessageBoxResult.Yes)
             {
-                Filter = "XML files (*.xml)|*.xml",
-            };
+                BtnSave_Click(null, null);
 
-            if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
-            if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
+                OpenFileDialog dialog = new OpenFileDialog
+                {
+                    Filter = "XML files (*.xml)|*.xml",
+                };
 
-            // Add messagebox - Save (existing layers), Cancel, Continue 
+                if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
+                if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
 
-            bool? result = dialog.ShowDialog(this);
-            if (dialog.FileName == "") return;
+                // Add messagebox - Save (existing layers), Cancel, Continue 
 
-            LoadLayerPositions(dialog.FileName);
+                bool? r = dialog.ShowDialog(this);
+                if (dialog.FileName == "") return;
+
+                LoadLayerPositions(dialog.FileName);
+            }
+
+            if (result == MessageBoxResult.No)
+            {
+                OpenFileDialog dialog = new OpenFileDialog
+                {
+                    Filter = "XML files (*.xml)|*.xml",
+                };
+
+                if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
+                if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
+
+                // Add messagebox - Save (existing layers), Cancel, Continue 
+
+                bool? r = dialog.ShowDialog(this);
+                if (dialog.FileName == "") return;
+
+                LoadLayerPositions(dialog.FileName);
+            }
         }
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
@@ -1218,8 +1252,18 @@ namespace RapidQA
             {
                 selectedLayer.Border.RenderTransform = new TranslateTransform(selectedLayer.CurrentTT.X, -offsetY);
             }
-            
-            if (!moveXAxis && !moveYAxis) selectedLayer.Border.RenderTransform = new TranslateTransform(-offsetX, -offsetY);                       
+            if (snapping)
+            {
+                var x = offsetX % 100;
+                var Xsnap = offsetX - x;
+
+                var y = offsetY % 100;
+                var Ysnap = offsetY - y;
+
+                selectedLayer.Border.RenderTransform = new TranslateTransform(-Xsnap, -Ysnap);
+            }
+
+            if (!moveXAxis && !moveYAxis && !snapping) selectedLayer.Border.RenderTransform = new TranslateTransform(-offsetX, -offsetY);                       
 
         }
         #endregion
