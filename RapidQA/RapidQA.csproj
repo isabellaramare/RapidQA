@@ -63,6 +63,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DottedLineAdorner.cs" />
     <Compile Include="MovingImage.cs" />
     <Compile Include="Row.cs" />
     <Page Include="MainWindow.xaml">

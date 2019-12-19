@@ -18,6 +18,7 @@ using ImSystem.Log;
 using System.Xml.Serialization;
 using System.Threading;
 using System.ComponentModel;
+using System.Windows.Documents;
 
 namespace RapidQA
 {
@@ -107,6 +108,8 @@ namespace RapidQA
             scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;    
         }
 
+   
+
         private void AddEvents(Layer layer)
         {
             Grid grid = layer.Row.Grid;
@@ -120,7 +123,8 @@ namespace RapidQA
             { RowMoveArea_MouseMove(sender, e, layer); };
             grid.MouseLeave += delegate (object sender, MouseEventArgs e) 
             { RowMoveArea_MouseLeave(sender, e, layer); };
-
+            grid.Loaded += delegate (object sender, RoutedEventArgs e)
+            { Grid_Loaded(sender, e, layer); };
             add.Click += delegate (object s, RoutedEventArgs ev) 
             { Btn_SelectImages_Click(s, ev, layer); };
             lo.Click += delegate (object sender, RoutedEventArgs e) 
@@ -131,6 +135,11 @@ namespace RapidQA
             { Btn_Delete_Click(sender, e, layer); };
             lab.TextChanged += delegate (object sender, TextChangedEventArgs e) 
             { Label_TextChanged(sender, e, layer); };
+        }
+
+        private void Grid_Loaded(object sender, RoutedEventArgs e, Layer layer)
+        {
+            AdornerLayer.GetAdornerLayer(layer.Row.Grid).Add(new DottedLineAdorner(layer.Row.Drag));
         }
 
         bool showInfo = false;
@@ -953,7 +962,7 @@ namespace RapidQA
                 {
                     layers.Add(l);
                     AddLayer(l);
-                    row.AddRowComponents(l, l.Assets);
+                    row.AddRowComponents(l, l.Assets);                    
                     ComboBox cb = l.Row.ComboBox;
                     cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) { Cbx_SelectionChanged(s, ev, l); };
                     AddImage(l);

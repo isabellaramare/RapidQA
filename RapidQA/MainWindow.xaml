@@ -155,35 +155,48 @@
 
         <Grid x:Name="GrdMenu" Grid.Column="0" Grid.Row="1" Background="#FF777777">
             <Grid.RowDefinitions>
-                <RowDefinition Height="35"/>
-                <RowDefinition />
+                <RowDefinition Height="50"/>
+                <RowDefinition/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Vertical">
+                <!--<Border BorderThickness="1" Height="10" Width="10">
+                    <Border.BorderBrush>
+                        <VisualBrush>
+                            <VisualBrush.Visual>
+                                <Rectangle StrokeDashArray="1 1" Stroke="Black" StrokeThickness="1"
+                  Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualWidth}"
+                  Height="{Binding RelativeSource={RelativeSource AncestorType={x:Type Border}}, Path=ActualHeight}"/>
+                            </VisualBrush.Visual>
+                        </VisualBrush>
+                    </Border.BorderBrush>
+                </Border>-->
                 <Label Margin="0" Content="Quality Assurance" Grid.Column="0" Background="#FF202020" Height="30" VerticalContentAlignment="Center" Padding="10,0" FontSize="18" FontWeight="Bold" Foreground="WhiteSmoke"/>
-            </StackPanel>
-            <Border x:Name="BorderInfo" CornerRadius="10"  Background="#CA343434" HorizontalAlignment="Right" Width="230" Margin="0,15,-248,200" Grid.RowSpan="2" Visibility="Collapsed">
-                <TextBlock x:Name="TxtInfo" Padding="12" Foreground="White" TextWrapping="Wrap" LineHeight="20">
-
-                </TextBlock>
-            </Border>
-            <Grid Grid.Row="1">
-                <Grid Height="14" Background="#FF4B4B4B" VerticalAlignment="Top" Margin="10, 0, 10, 0">
+                <Grid Margin="10, 5, 10, 0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="8*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="2.5*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="3.5*"/>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="1" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">V</Label>
-                    <Label Grid.Column="2" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">L</Label>
-                    <Label Grid.Column="3" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center">D</Label>
+                    <Label Grid.Column="1" FontSize="8" Margin="0,-4,0,-4" Content="NAME" Foreground="WhiteSmoke"/>
+                    <Label Grid.Column="2" FontSize="8" Margin="0,-4,0,-4" Grid.ColumnSpan="2" Content="IMAGES" Foreground="WhiteSmoke" />
+                    <Label Grid.Column="4" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center" Foreground="WhiteSmoke">V</Label>
+                    <Label Grid.Column="5" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center" Foreground="WhiteSmoke">L</Label>
+                    <Label Grid.Column="6" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center" Foreground="WhiteSmoke">D</Label>
                 </Grid>
-
+            </StackPanel>
+            <Border x:Name="BorderInfo" CornerRadius="10"  Background="#CA343434" HorizontalAlignment="Right" Width="230" Margin="0,15,-248,200" Grid.RowSpan="2" Visibility="Collapsed">
+                <TextBlock x:Name="TxtInfo" Padding="12" Foreground="White" TextWrapping="Wrap" LineHeight="20"/>
+            </Border>
+            <Grid Grid.Row="1">
                 <ScrollViewer x:Name="scrollViewer">
-                    <StackPanel Background="WhiteSmoke" Margin="10, 14, 10, 10">
+                    <StackPanel Background="WhiteSmoke" Margin="10, 0, 10, 10">
                         <StackPanel x:Name="sp" AllowDrop="True">
-                            <Grid Height="20" Background="silver" VerticalAlignment="Top">
+                            <Grid Height="20" VerticalAlignment="Top">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="8*"/>
                                     <ColumnDefinition Width="1*"/>
@@ -225,12 +238,14 @@
                                 Grid.Column="0"
                                 Content="Save File"                                
                                 VerticalAlignment="Center" 
-                                MinWidth="80"/>
+                                MinWidth="80"
+                                MaxWidth="100"/>
                 <Button x:Name="BtnLoad"
                                 Grid.Column="1"
                                 Content="Load File"                                
                                 VerticalAlignment="Center" 
-                                MinWidth="80"/>
+                                MinWidth="80"
+                                MaxWidth="100"/>
             </Grid>
         </Grid>
         <GridSplitter x:Name="Splitter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Grid.RowSpan="2" Background="#FF202020"/>

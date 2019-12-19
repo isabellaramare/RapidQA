@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 
 namespace RapidQA
@@ -19,7 +21,7 @@ namespace RapidQA
         public CheckBox CBLock { get; set; }
         public Button Button { get; set; }
         public Button Delete { get; set; }
-
+        public Border Drag { get; set; }
 
         public Row()
         {
@@ -37,7 +39,7 @@ namespace RapidQA
             CheckBox cbLock = new CheckBox();
             Button button = new Button();
             Button delete = new Button();
-      
+            Border drag = new Border();
 
             for (int i = 0; i < 7; i++)
             {
@@ -85,6 +87,7 @@ namespace RapidQA
 
             cbVis.IsChecked = true;
 
+            drag.SetValue(Grid.ColumnProperty, 0);
             label.SetValue(Grid.ColumnProperty, 1);
             button.SetValue(Grid.ColumnProperty, 2);
 
@@ -113,13 +116,18 @@ namespace RapidQA
             delete.Height = 14;
             delete.Content = "X";                                
             delete.Padding = new Thickness(0, -2, 0, 0);
-      
+
+            //drag.Width = 14;
+            //drag.Height = 14;
+            drag.Margin = new Thickness(6,6,4,4);
+
             grid.Children.Add(label);
             grid.Children.Add(button);
             grid.Children.Add(cbVis);
             grid.Children.Add(cbLock);
             grid.Children.Add(delete);
-
+            grid.Children.Add(drag);
+                      
             Row newRow = new Row();
             newRow.Grid = grid;
             newRow.CBVisibility = cbVis;
@@ -127,6 +135,7 @@ namespace RapidQA
             newRow.Button = button;
             newRow.Delete = delete;
             newRow.Label = label;
+            newRow.Drag = drag;
            
             return newRow;
         }
@@ -157,4 +166,5 @@ namespace RapidQA
             layer.Row.CBLock.IsEnabled = true;           
         }
     }
+
 }
