@@ -28,46 +28,107 @@
             </Setter>
         </Style>
     </Window.Resources>
-  
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.1*" MinWidth="5" MaxWidth="400"/>
-            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="3"/>
             <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
 
+        <!--Contains Zoom, Save image buttons and Log-->
         <Grid x:Name="GridImages" Grid.Column="2">
             <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
                 <RowDefinition Height="3*"/>
-                <RowDefinition Height="4"/>
+                <RowDefinition Height="3"/>
                 <RowDefinition Height="20" MinHeight="20"/>
             </Grid.RowDefinitions>
+            
+            <Grid Grid.Row="0" Background="#FF777777">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <Button x:Name="BtnInfo"  
+                            Content="i"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center" 
+                            MinWidth="20" 
+                            Margin="5"
+                            Background="#FF4EAD4E" 
+                            FontWeight="Bold" 
+                            FontStyle="Italic" 
+                            Foreground="White"/>
+                    <Label Content="Work Area Size:" VerticalAlignment="Center" FontSize="11"/>
+                    <TextBox x:Name="workarea_width" VerticalAlignment="Center" Text="0" MinWidth="70" Margin="5,0"/>
+                    <TextBlock Text="x" VerticalAlignment="Center"/>
+                    <TextBox x:Name="workarea_height" VerticalAlignment="Center" Text="0" MinWidth="70" Margin="5,0"/>
 
-            <Grid Grid.Row="0">
+                    <TextBlock Text="Background color:" VerticalAlignment="Center" Margin="20,0,0,0"/>
+                    <colorpicker:ColorPicker Name="ClrPcker_Background" Grid.Column="1" VerticalAlignment="Center" Margin="10,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="BtnCopyView"   
+                                    Content="Copy View" 
+                                    Height="20" 
+                                    VerticalAlignment="Center" 
+                                    MinWidth="70" 
+                                    FontSize="11"
+                                    Margin="0, 0, 2, 0"/>
+
+                    <Button x:Name="BtnSaveView"                                    
+                                    Content="Save View" 
+                                    Height="20" 
+                                    VerticalAlignment="Center" 
+                                    MinWidth="70" 
+                                    FontSize="11"
+                                    Margin="0, 0, 7, 0"/>
+
+                    <Button x:Name="BtnCopyImage"                                    
+                                    Content="Copy Image" 
+                                    Height="20" 
+                                    VerticalAlignment="Center" 
+                                    MinWidth="70" 
+                                    FontSize="11"
+                                    Margin="0, 0, 2, 0"/>
+
+                    <Button x:Name="BtnSaveImage"                                    
+                                    Content="Save Image" 
+                                    Height="20" 
+                                    VerticalAlignment="Center" 
+                                    MinWidth="70" 
+                                    FontSize="11"
+                                    Margin="0, 0, 5, 0"/>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" x:Name="ViewGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="29*"/>
                     <RowDefinition Height="186*"/>
                 </Grid.RowDefinitions>
+
                 <zoom:ZoomControl x:Name="Zoom" AllowDrop="True" Background="#FF4B4B4B" VerticalAlignment="Top" Grid.RowSpan="2">
                     <Grid x:Name="Workarea">
                         <Image RenderOptions.BitmapScalingMode="NearestNeighbor" x:Name="ZoomImage" 
-                               Source="{Binding ElementName=ImageZoom, Path=Source}" 
-                               VerticalAlignment="Top" 
-                               HorizontalAlignment="Left" 
-                               Stretch="None" 
-                               SnapsToDevicePixels="False" />
+                                   Source="{Binding ElementName=ImageZoom, Path=Source}" 
+                                   VerticalAlignment="Top" 
+                                   HorizontalAlignment="Left" 
+                                   Stretch="None" 
+                                   SnapsToDevicePixels="False" />
                     </Grid>
                 </zoom:ZoomControl>
                 <Button x:Name="BtnExpand"                              
-                            Content="[ ]"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Top" 
-                            MinWidth="20" 
-                            Background="#FF4EAD4E" 
-                            Margin="5"
-                            Padding="0,0,0,3"
-                            FontWeight="Bold" Foreground="White"/>
-                
+                                Content="[ ]"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top" 
+                                MinWidth="20" 
+                                Background="#FF4EAD4E" 
+                                Margin="5"
+                                Padding="0,0,0,3"
+                                FontWeight="Bold" Foreground="White"/>
+
                 <Border Background="#CC343434" BorderThickness="0" Height="30" HorizontalAlignment="Left" Margin="15,0,0,12" x:Name="border2" VerticalAlignment="Bottom" Width="214" CornerRadius="10" BorderBrush="#FF343434" Grid.Row="1">
                     <Grid Width="200">
                         <Grid.ColumnDefinitions>
@@ -85,56 +146,25 @@
                 </Border>
 
             </Grid>
-            <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"  Background="#FF303030"/>
-            <!--<Grid Margin="20" Height="30" Width="100">
-                <ProgressBar Minimum="0" Maximum="100" Name="pbStatus" />
-            </Grid>-->
-            <!--Layers-->
-            <Grid Grid.Row="2">
+            <GridSplitter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="2" Background="#FF202020"/>
+            <Grid Grid.Row="3">
                 <CheckBox x:Name="CkbToggleLog" Content="Toggle Log" Width="75" VerticalContentAlignment="Bottom" FontSize="10" VerticalAlignment="Stretch" HorizontalAlignment="left" Grid.Column="0" Margin="0,2,0,2"/>
                 <log:LogTextBox x:Name="LogWindow"/>
             </Grid>
         </Grid>
 
-        <Grid x:Name="GrdMenu" Grid.Column="0" Background="#FF777777">
+        <Grid x:Name="GrdMenu" Grid.Column="0" Grid.Row="1" Background="#FF777777">
             <Grid.RowDefinitions>
-                <RowDefinition Height="100"/>
+                <RowDefinition Height="35"/>
                 <RowDefinition />
-                <RowDefinition Height="120"/>
+                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Vertical">
-                <Label Content="Quality Assurance" Background="#FF202020" Height="50" VerticalContentAlignment="Center" Padding="30,0" FontSize="18" FontWeight="Bold" Foreground="WhiteSmoke"/>
-                <!--<browse:Browser x:Name="BrwRootDir" BrowseFolder="True" Label="Browse folder" LabelWidth="100" Margin="10,10,20,10" Width="200" HorizontalAlignment="Left" Height="25"/>-->
-                <Label Padding="0,2,0,4" Margin="10,0,0,0">Layer Positions</Label>
-                <Grid Margin="10, 0, 10, 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <Button x:Name="BtnSave"   
-                            Grid.Column="0"
-                            Content="Save"                                
-                            VerticalAlignment="Center" 
-                            MinWidth="80"/>
-                    <Button x:Name="BtnLoad"
-                            Grid.Column="1"
-                            Content="Load"                                
-                            VerticalAlignment="Center" 
-                            MinWidth="80"/>
-                    <Button x:Name="BtnInfo"  
-                            Grid.Column="2"
-                            Content="i"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center" 
-                            MinWidth="20" 
-                            Background="#FF4EAD4E" 
-                            FontWeight="Bold" FontStyle="Italic" Foreground="White"/>
-                </Grid>
+                <Label Margin="0" Content="Quality Assurance" Grid.Column="0" Background="#FF202020" Height="30" VerticalContentAlignment="Center" Padding="10,0" FontSize="18" FontWeight="Bold" Foreground="WhiteSmoke"/>
             </StackPanel>
             <Border x:Name="BorderInfo" CornerRadius="10"  Background="#CA343434" HorizontalAlignment="Right" Width="230" Margin="0,15,-248,200" Grid.RowSpan="2" Visibility="Collapsed">
                 <TextBlock x:Name="TxtInfo" Padding="12" Foreground="White" TextWrapping="Wrap" LineHeight="20">
-        
+
                 </TextBlock>
             </Border>
             <Grid Grid.Row="1">
@@ -151,7 +181,7 @@
                 </Grid>
 
                 <ScrollViewer x:Name="scrollViewer">
-                    <StackPanel Background="White" Margin="10, 14, 10, 10">
+                    <StackPanel Background="WhiteSmoke" Margin="10, 14, 10, 10">
                         <StackPanel x:Name="sp" AllowDrop="True">
                             <Grid Height="20" Background="silver" VerticalAlignment="Top">
                                 <Grid.ColumnDefinitions>
@@ -173,13 +203,13 @@
                                 <ColumnDefinition Width="10*"/>
                             </Grid.ColumnDefinitions>
                             <Button x:Name="BtnAddLayer"   
-                                    Grid.Column="1"                                    
-                                    Height="25" 
-                                    Padding="10,0,0,0"                                     
-                                    BorderBrush="{x:Null}"                                 
-                                    Style="{StaticResource NoHoverButton}"
-                                    Content="Add Layer +" 
-                                    HorizontalAlignment="Stretch"/>
+                                        Grid.Column="1"                                    
+                                        Height="25" 
+                                        Padding="10,0,0,0"                                     
+                                        BorderBrush="{x:Null}"                                 
+                                        Style="{StaticResource NoHoverButton}"
+                                        Content="Add Layer +" 
+                                        HorizontalAlignment="Stretch"/>
 
                         </Grid>
                     </StackPanel>
@@ -188,74 +218,22 @@
 
             <Grid Grid.Row="2" Margin="10">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" >
-                        <StackPanel>
-                            <TextBlock HorizontalAlignment="Left" Text="Work Area Color:" TextWrapping="Wrap" VerticalAlignment="Top"  Padding="0, 0, 0, 5" FontSize="11"/>
-                            <colorpicker:ColorPicker Name="ClrPcker_Background" Grid.Column="1" VerticalAlignment="Top"/>
-                        </StackPanel>
-                    </Grid>
-                    <Grid Grid.Row="1">
-
-                    </Grid>
-                    <Grid Grid.Row="2" Margin="0,5,0,0">
-                        <StackPanel>
-                            <Grid>
-                                <Label HorizontalAlignment="Left" Content="Work Area Size:" VerticalAlignment="top" Padding="0, 0, 0, 5" FontSize="11"/>
-                            </Grid>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="1*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox x:Name="workarea_width" Grid.Column="0" VerticalAlignment="top" Text="0"/>
-                                <TextBlock Text="x" Grid.Column="1" VerticalAlignment="top" HorizontalAlignment="center"/>
-                                <TextBox x:Name="workarea_height" Grid.Column="2" VerticalAlignment="top" Text="0"/>
-                            </Grid>
-                        </StackPanel>
-                    </Grid>
-                </Grid>
-                <Grid Grid.Column="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
-
-                    </Grid>
-                    <Grid Grid.Row="1">
-                        <Button x:Name="BtnSaveView" 
-                                HorizontalAlignment="Right" 
-                                Content="Save View" 
-                                Height="20" 
+                <Button x:Name="BtnSave"   
+                                Grid.Column="0"
+                                Content="Save File"                                
                                 VerticalAlignment="Center" 
-                                MinWidth="85" 
-                                FontSize="11"
-                                Margin="0,0,15,0"/>
-                    </Grid>
-                    <Grid Grid.Row="2">
-                        <Button x:Name="BtnSaveWorkArea" 
-                                HorizontalAlignment="Right" 
-                                Content="Save Work Area" 
-                                Height="20" 
+                                MinWidth="80"/>
+                <Button x:Name="BtnLoad"
+                                Grid.Column="1"
+                                Content="Load File"                                
                                 VerticalAlignment="Center" 
-                                MinWidth="85" 
-                                FontSize="11"
-                                Margin="0,0,15,0"/>
-                    </Grid>
-                </Grid>
+                                MinWidth="80"/>
             </Grid>
         </Grid>
-        <GridSplitter x:Name="Splitter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1"  Background="#FF303030"/>
+        <GridSplitter x:Name="Splitter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Grid.RowSpan="2" Background="#FF202020"/>
     </Grid>
 </Window>
     

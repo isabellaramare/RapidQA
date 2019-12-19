@@ -17,6 +17,9 @@ C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Debug\RapidQA.csproj.GenerateR
 C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Debug\RapidQA.csproj.CopyComplete
 C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Debug\QA.exe
 C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Debug\QA.pdb
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\RapidQA.exe.config
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\RapidQA.exe
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\RapidQA.pdb
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\ImSystem.dll
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\ImUI.dll
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\System.Drawing.Common.dll
@@ -26,13 +29,10 @@ C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.csprojAssem
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\MainWindow.baml
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\MainWindow.g.cs
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\App.g.cs
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.csproj.GenerateResource.cache
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.csproj.CopyComplete
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\RapidQA.exe.config
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\RapidQA.exe
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Debug\RapidQA.pdb
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA_MarkupCompile.cache
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.g.resources
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.Properties.Resources.resources
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.csproj.GenerateResource.cache
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.csproj.CopyComplete
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.exe
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Debug\RapidQA.pdb

@@ -46,9 +46,8 @@ namespace RapidQA
 
         // BUGS
         // weird white box appears when saving view
-        // Change movement info - eg. CTRL + scroll (not possible...)       
+        // Change movement info - eg. CTRL + scroll (not possible...)
         // All layers show the name of the same image??? (andrea)
-        // Moving an image should be possible when touching anywhere (in workarea?) (event if its see through)
 
         // EXTRAS         
         // custom made button design (eye for visibility, padlock for locking)
@@ -63,6 +62,7 @@ namespace RapidQA
         // What function should be called for ctrl+S?
         // Should existing layers be deleted when you load? yes, but save the old ones
 
+
         public MainWindow()
         {
             InitializeComponent();        
@@ -76,7 +76,7 @@ namespace RapidQA
             workarea_height.IsEnabled = false;
             
             BtnAddLayer.Click += BtnAddLayer_Click;
-            BtnSaveWorkArea.Click += BtnSaveWorkArea_Click;
+            BtnSaveImage.Click += BtnSaveImage_Click;
             BtnSaveView.Click += BtnSaveView_Click;
             BtnSave.Click += BtnSave_Click;
             BtnLoad.Click += BtnLoad_Click;
@@ -158,6 +158,7 @@ namespace RapidQA
                 "CTRL + Y to redo\n" +
                 "Press 1-9 to select layers\n" +
                 "Press L to toggle Log\n" +
+                "Press Q to reset image position\n" +
                 "Press I to toggle this"; 
             }
         }
@@ -241,7 +242,6 @@ namespace RapidQA
             }
         }
 
-
         internal void DeleteLayer(Layer layer)
         {
             string layerName = layer.Row.Label.Text.ToString();           
@@ -268,8 +268,6 @@ namespace RapidQA
 
             Log.AddSuccess("Deleted " + layerName);            
         }
-
-
 
         private void ClrPcker_Background_ColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
         {
@@ -309,6 +307,7 @@ namespace RapidQA
                     cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) 
                     { Cbx_SelectionChanged(s, ev, layer); };
                     AddImage(layer);
+                    //layer.CurrentTT = new TranslateTransform(0,0);
                 }
             }
             else
@@ -319,8 +318,10 @@ namespace RapidQA
                 {
                     layer.Row.ComboBox.ItemsSource = assets;
                     layer.Row.ComboBox.SelectedIndex = 0;
-                    AddImage(layer);
-                    //ChangeImageFilepath(layer);
+                    //AddImage(layer);
+                    //layer.Border.RenderTransform = new TranslateTransform(layer.CurrentTT.X, layer.CurrentTT.Y);
+                    ChangeImageFilepath(layer);
+                    //SaveImagePosition();
                 }              
             }
 
@@ -334,18 +335,6 @@ namespace RapidQA
             Asset selectedItem = (Asset)layer.Row.ComboBox.SelectedItem;
             var uriSource = new Uri(selectedItem.Filepath);
             layer.Image.Source = new BitmapImage(uriSource);
-
-
-            //Workarea.Width = layer.Image.Source.Width;
-            //Workarea.Height = layer.Image.Source.Height;
-            //workarea_width.Text = layer.Image.Source.Width.ToString();
-            //workarea_height.Text = layer.Image.Source.Height.ToString();
-
-
-            //workarea_height.Text = "";
-            //workarea_width.Text = "";
-            //SetWorkareaWidth();
-            //SetWorkareaHeight();
         }      
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
@@ -417,15 +406,15 @@ namespace RapidQA
             Ckb_AllVisible.IsEnabled = true;
             Ckb_AllLocked.IsEnabled = true;
 
-            selectedLayer.Border.Width = selectedLayer.Image.Source.Width;
-            selectedLayer.Border.Height = selectedLayer.Image.Source.Height;
+            layer.Border.Width = selectedLayer.Image.Source.Width;
+            layer.Border.Height = selectedLayer.Image.Source.Height;
         }
 
         private void Cbx_SelectionChanged(object sender, SelectionChangedEventArgs e, Layer layer)
         {
             if (imagesUpdated) return;
-            AddImage(layer);
-            //ChangeImageFilepath(layer);
+            //AddImage(layer);
+            ChangeImageFilepath(layer);
             SetLayerVisibility(layer);
         }
 
@@ -466,6 +455,8 @@ namespace RapidQA
             {
                 workarea_height.Text = "0";
                 workarea_width.Text = "0";
+                Workarea.Height = 0;
+                Workarea.Width = 0;
                 workarea_height.IsEnabled = false;
                 workarea_width.IsEnabled = false;
             }
@@ -554,12 +545,20 @@ namespace RapidQA
 
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+
+            if (Keyboard.IsKeyDown(Key.Q))
+            {
+                selectedLayer.Border.RenderTransform = new TranslateTransform(0, 0);
+                selectedLayer.CurrentTT = new TranslateTransform(0, 0);
+                SaveImagePosition();
+            }
+
             if (Keyboard.IsKeyDown(Key.I))
             {
                 BtnInfo_Click(null, null);
             }
 
-            if (Keyboard.IsKeyDown(Key.L))
+            if (!Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.L))
             {
                 if ((bool)CkbToggleLog.IsChecked) CkbToggleLog.IsChecked = false;
                 else CkbToggleLog.IsChecked = true;
@@ -628,14 +627,14 @@ namespace RapidQA
 
                     // Save workarea
                     case Key.S:
-                        BtnSaveWorkArea_Click(null, null);
+                        BtnSaveImage_Click(null, null);
                         break;
                 }
             }
 
             if (workarea_height.IsFocused || workarea_width.IsFocused) return;
             else
-            {
+            {         
                 switch (e.Key)
                 {
                     case Key.X:
@@ -808,7 +807,7 @@ namespace RapidQA
             // show dialog
             if (dialog.ShowDialog().Value)
             {                             
-                System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(GridImages));
+                System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(ViewGrid));
                 image.Save(dialog.FileName);
                 Log.AddSuccess("saved image - " + dialog.FileName);                
             }
@@ -818,7 +817,7 @@ namespace RapidQA
         {
             SaveFileDialog dialog = new SaveFileDialog();
 
-            dialog.Title = "Save image view";
+            dialog.Title = "Save image";
 
             dialog.AddExtension = true;
 
@@ -829,7 +828,7 @@ namespace RapidQA
             return dialog;
         }
 
-        private void BtnSaveWorkArea_Click(object sender, RoutedEventArgs e)
+        private void BtnSaveImage_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog dialog = OpenFileSaveDialog();
           
@@ -897,7 +896,7 @@ namespace RapidQA
             if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
             if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
 
-            // Add messagebox - Save (existing layers), Cancel, Continue => in this case, also remove old layers when loading
+            // Add messagebox - Save (existing layers), Cancel, Continue 
 
             bool? result = dialog.ShowDialog(this);
             if (dialog.FileName == "") return;
@@ -1128,12 +1127,15 @@ namespace RapidQA
         #region LAYER MOVING
         private void LayerImage_MouseLeave(object sender, MouseEventArgs e)
         {
-            Cursor = Cursors.Arrow;
-            selectedLayer.Border.BorderThickness = new Thickness(0);
-
             if (selectedLayer.Image == null) return;
             selectedLayer.CurrentTT = selectedLayer.Border.RenderTransform as TranslateTransform;
             selectedLayer.IsMoving = false;
+        }
+
+        private void Image_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Cursor = Cursors.Arrow;
+            selectedLayer.Border.BorderThickness = new Thickness(0);
         }
 
         private void LayerImage_MouseDown(object sender, MouseButtonEventArgs e)
@@ -1154,7 +1156,7 @@ namespace RapidQA
             selectedLayer.Image.IsHitTestVisible = true;       
         }
 
-        private void LayerImage_MouseUp(object sender, MouseButtonEventArgs e)
+        private void PreviewLayerImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (selectedLayer.Image == null) return;
             selectedLayer.CurrentTT = selectedLayer.Border.RenderTransform as TranslateTransform;
@@ -1181,11 +1183,14 @@ namespace RapidQA
             }
         }
 
-        private void LayerImage_MouseMove(object sender, MouseEventArgs e)
+        private void Image_MouseMove(object sender, MouseEventArgs e)
         {
             Cursor = Cursors.Hand;
-            selectedLayer.Border.BorderThickness = new Thickness(1);
-            
+            selectedLayer.Border.BorderThickness = new Thickness(1); 
+        }
+
+        private void PreviewLayerImage_MouseMove(object sender, MouseEventArgs e)
+        {
             if (selectedLayer.Image == null) return;
             if (!selectedLayer.IsMoving) return;
             if (selectedLayer.IsLocked) return;
@@ -1211,6 +1216,56 @@ namespace RapidQA
         #endregion
 
         #region LAYER STACKING
+
+        private void MakeLayerSelected(Layer layer)
+        {
+            selectedLayer = layer;
+
+            foreach (Layer l in layers)
+            {
+                if (l.Image != null)
+                {
+                    l.Image.IsHitTestVisible = false;
+                    l.Image.MouseLeave -= Image_MouseLeave;
+                    Zoom.MouseLeave -= LayerImage_MouseLeave;
+                    //l.Image.MouseUp -= LayerImage_MouseUp;
+                    Zoom.PreviewMouseUp -= PreviewLayerImage_MouseUp;
+                    l.Image.MouseDown -= LayerImage_MouseDown;
+                    //Zoom.MouseDown -= LayerImage_MouseDown;
+                    l.Image.MouseMove -= Image_MouseMove;
+                    Zoom.PreviewMouseMove -= PreviewLayerImage_MouseMove;
+
+                    l.Border.BorderThickness = new Thickness(0);
+                }
+                if (l.Equals(selectedLayer))
+                {
+                    l.Row.Grid.Background = new LinearGradientBrush(
+                            Color.FromArgb(100, 119, 119, 119),
+                            Color.FromArgb(100, 221, 221, 221),
+                            new Point(0, 0),
+                            new Point(1, 1));
+
+                    if (l.Image != null)
+                    {
+                        selectedLayer.Image.IsHitTestVisible = true;
+                        //selectedLayer.Image.MouseLeave += LayerImage_MouseLeave;
+                        selectedLayer.Image.MouseLeave += Image_MouseLeave;
+                        Zoom.MouseLeave += LayerImage_MouseLeave;
+                        //selectedLayer.Image.MouseUp += LayerImage_MouseUp;
+                        Zoom.MouseUp += PreviewLayerImage_MouseUp;
+                        selectedLayer.Image.MouseDown += LayerImage_MouseDown;
+                        //Zoom.MouseDown += LayerImage_MouseDown;                 
+                        selectedLayer.Image.MouseMove += Image_MouseMove;
+                        Zoom.MouseMove += PreviewLayerImage_MouseMove;
+                    }
+                }
+                else
+                {
+                    l.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
+                }
+            }
+        }
+
         private void RowMoveArea_MouseLeave(object sender, MouseEventArgs e, Layer layer)
         {
             if (selectedLayer.Equals(layer))
@@ -1258,46 +1313,6 @@ namespace RapidQA
                 new Point(1, 1));
         }
 
-
-        private void MakeLayerSelected(Layer layer)
-        {          
-            selectedLayer = layer;
-
-            foreach (Layer l in layers)
-            {
-                if (l.Image != null)
-                {
-                    l.Image.IsHitTestVisible = false;
-                    l.Image.MouseLeave -= LayerImage_MouseLeave;
-                    l.Image.MouseUp -= LayerImage_MouseUp;
-                    l.Image.MouseDown -= LayerImage_MouseDown;
-                    l.Image.MouseMove -= LayerImage_MouseMove;
-
-                    l.Border.BorderThickness = new Thickness(0);
-                }
-                if (l.Equals(selectedLayer))
-                {
-                    l.Row.Grid.Background = new LinearGradientBrush(
-                            Color.FromArgb(100, 119, 119, 119),
-                            Color.FromArgb(100, 221, 221, 221),
-                            new Point(0, 0),
-                            new Point(1, 1));
-
-                    if (l.Image != null)
-                    {                        
-                        selectedLayer.Image.IsHitTestVisible = true;
-                        selectedLayer.Image.MouseLeave += LayerImage_MouseLeave;
-                        selectedLayer.Image.MouseUp += LayerImage_MouseUp;
-                        selectedLayer.Image.MouseDown += LayerImage_MouseDown;
-                        selectedLayer.Image.MouseMove += LayerImage_MouseMove;
-                    }
-                }
-                else
-                {
-                    l.Row.Grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));             
-                }
-            }
-        }
         private void Sp_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.Source is Grid)
@@ -1381,7 +1396,7 @@ namespace RapidQA
                         if (layer.Equals(selectedLayer))
                         {
                             layers.Remove(layer);
-                            layers.Insert(droptargetIndex, layer);
+                            layers.Insert((droptargetIndex - 1), layer);
                             break;
                         }
                     }           
@@ -1389,7 +1404,7 @@ namespace RapidQA
                     if (selectedLayer.Image != null)
                     {
                         Workarea.Children.Remove(selectedLayer.Border);
-                        Workarea.Children.Insert(droptargetIndex, selectedLayer.Border);
+                        Workarea.Children.Insert((droptargetIndex - 1), selectedLayer.Border);
                     }
                 }
 
