@@ -29,11 +29,13 @@ namespace RapidQA
         public Border Border { get; set; }
 
         public List<Asset> Assets { get; set; } = new List<Asset>();
+        public int SelectedIndex { get; set; }
  
         public Layer()
         {
             Row = new Row();
             CurrentTT = new TranslateTransform(0, 0);
+            //SelectedIndex = 0;
         }
     }
 }

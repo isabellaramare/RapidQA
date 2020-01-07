@@ -82,8 +82,7 @@ namespace RapidQA
             grid.Margin = new Thickness(0, 5, 0, 5);
             grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
 
-            int numberOfLayers = layerCount;
-            label.Text = "Layer " + (numberOfLayers + 1);
+            label.Text = "Layer " + layerCount;
 
             cbVis.IsChecked = true;
 
@@ -151,7 +150,8 @@ namespace RapidQA
             combobox.ItemsSource = assets;
             layer.Row.Grid.Children.Add(combobox);
             layer.Row.ComboBox = combobox;
-            layer.Row.ComboBox.SelectedIndex = 0;
+            if (layer.SelectedIndex > 0) layer.Row.ComboBox.SelectedIndex = layer.SelectedIndex;
+            else layer.Row.ComboBox.SelectedIndex = 0;
 
             // Adjust button and Checkboxes
             Button btn = layer.Row.Button;

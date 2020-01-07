@@ -25,17 +25,14 @@ namespace RapidQA
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    //[Serializable]
     public partial class MainWindow : Window
     {
         public Log Log { get; set; }
         List<Layer> layers = new List<Layer>();
-        Dictionary<Layer, List<Point>> Undo = new Dictionary<Layer, List<Point>>(); // Infinite!
+        Dictionary<Layer, List<Point>> Undo = new Dictionary<Layer, List<Point>>();
         Dictionary<Layer, List<Point>> Redo = new Dictionary<Layer, List<Point>>();
-        List<Asset> selectedAssets = new List<Asset>();
         Row row = new Row();
         string fileDirectory;
-        private int layerCount = 0;
         private bool imagesUpdated = false;
         private UIElement dummyDragSource = new UIElement();
         private Layer selectedLayer = new Layer();
@@ -47,29 +44,25 @@ namespace RapidQA
         // config file for automatic image-to-layer distribution https://support.microsoft.com/en-us/help/815786/how-to-store-and-retrieve-custom-information-from-an-application-confi                     
 
         // BUGS
-        // weird white box appears when saving view
         // All layers show the name of the same image??? (andrea)
-        // prevent selected layer from moving when navigating in combobox
 
         // EXTRAS         
-        // custom made button design (eye for visibility, padlock for locking)
         // different colors for layers
-        // Snapping      => kinda works but the layers snap to different "grids"...
-        // Row grabbing is more obvious    
+        // Snapping => kinda works but the layers snap to different "grids"...   
         // Make several layers be selectable at once
         // Gridsplitter so that layerlabel can be scalable
-        // When pressing "Load" should you be asked to save existing layers before or after chosing files to load?
-        // Display preset-file name somewhere
+        // Center (customized) messageboxes
 
         // QUESTIONS FOR USERS
         // What function should be called for ctrl+S?
-        // Should existing layers be deleted when you load? yes, but save the old ones
 
         public MainWindow()
         {
             InitializeComponent();        
             Log = LogWindow.Log;
             Log.AddInfo("Application loaded");
+
+       
 
             Workarea.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
 
@@ -80,8 +73,10 @@ namespace RapidQA
             BtnAddLayer.Click += BtnAddLayer_Click;
             BtnSaveImage.Click += BtnSaveImage_Click;
             BtnSaveView.Click += BtnSaveView_Click;
-            BtnSave.Click += BtnSave_Click;
-            BtnLoad.Click += BtnLoad_Click;
+            BtnCopyView.Click += BtnCopyView_Click;
+            BtnCopyImage.Click += BtnCopyImage_Click;
+            BtnSavePreset.Click += BtnSavePreset_Click;
+            BtnLoadPreset.Click += BtnLoadPreset_Click;
             BtnInfo.Click += BtnInfo_Click;
             BtnExpand.Click += BtnExpand_Click;
             Btn_DeleteAll.Click += Btn_DeleteAll_Click;
@@ -106,7 +101,8 @@ namespace RapidQA
             this.KeyUp += MainWindow_KeyUp;
             this.Closed += MainWindow_Closed;
 
-            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;    
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+
         }
 
         private void AddEvents(Layer layer)
@@ -139,6 +135,7 @@ namespace RapidQA
         private void Grid_Loaded(object sender, RoutedEventArgs e, Layer layer)
         {
             AdornerLayer.GetAdornerLayer(layer.Row.Grid).Add(new DottedLineAdorner(layer.Row.Drag));
+            DeleteWindow();
         }
 
         bool showInfo = false;
@@ -176,14 +173,29 @@ namespace RapidQA
         {            
             if ((bool)CkbToggleLog.IsChecked)
             {
-                var rowdef = GridImages.RowDefinitions[2];
-                rowdef.Height = new GridLength(200);             
+                EnableLog();
             }
             else
             {
-                var rowdef = GridImages.RowDefinitions[2];
-                rowdef.Height = new GridLength(20);
+                DisableLog();
             }
+        }
+
+        private void EnableLog()
+        {
+            CkbToggleLog.IsChecked = true;
+            var rowdef = GridImages.RowDefinitions[3];
+            rowdef.Height = new GridLength(200);
+            LogWindow.ShowLog();
+            LogWindow.Height = 200;
+        }
+
+        private void DisableLog()
+        {
+            var rowdef = GridImages.RowDefinitions[3];
+            rowdef.Height = new GridLength(5);
+            LogWindow.HideLog();
+            LogWindow.Height = 5;
         }
 
         private void Ckb_AllLocked_Click(object sender, RoutedEventArgs e)
@@ -237,6 +249,8 @@ namespace RapidQA
                 MessageBoxImage.Question, 
                 MessageBoxResult.No);
 
+            if (result == MessageBoxResult.No){ return; }
+
             if (result == MessageBoxResult.Yes)
             {                
                 foreach (Layer l in layers)
@@ -275,7 +289,9 @@ namespace RapidQA
                 }
             }
 
-            Log.AddSuccess("Deleted " + layerName);            
+            Log.AddSuccess("Deleted " + layerName);
+            Redo.Clear();
+            Undo.Clear();
         }
 
         private void ClrPcker_Background_ColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
@@ -292,15 +308,16 @@ namespace RapidQA
                 MessageBoxImage.Question, 
                 MessageBoxResult.No);
 
+            if (result == MessageBoxResult.No) return;
+            
             if (result == MessageBoxResult.Yes)
             {                
                 DeleteLayer(layer);
+                layers.Remove(layer);
+                EnableWorkareaScaling();
+                SetWorkareaWidth();
+                SetWorkareaHeight();
             }
-
-            layers.Remove(layer);
-            EnableWorkareaScaling();
-            SetWorkareaWidth();
-            SetWorkareaHeight();
         }
        
         private void Btn_SelectImages_Click(object sender, RoutedEventArgs e, Layer layer)
@@ -324,16 +341,15 @@ namespace RapidQA
                 List<Asset> assets = SelectImages();
                 if (assets.Count > 0)
                 {
+                    layer.Assets = assets;
                     layer.Row.ComboBox.ItemsSource = assets;
                     layer.Row.ComboBox.SelectedIndex = 0;
                     ChangeImageFilepath(layer);
-
                 }              
             }
             imagesUpdated = false;
             MakeLayerSelected(layer);
         }
-
 
         private void ChangeImageFilepath(Layer layer)
         {
@@ -355,14 +371,13 @@ namespace RapidQA
 
         private void AddLayer(Layer layer)
         {
-            Row newRow = row.CreateNewRow(layerCount);
-            layerCount += 1;
+            Row newRow = row.CreateNewRow(layers.Count);
             sp.Children.Add(newRow.Grid);
             layer.Row = newRow;
             if (layer.Name == null) layer.Name = layer.Row.Label.Text;
             else layer.Row.Label.Text = layer.Name;
             AddEvents(layer);            
-            Log.AddInfo("Created  " + layer.Name);       
+            Log.AddInfo("Created " + layer.Name);       
         }
 
         private void Label_TextChanged(object sender, TextChangedEventArgs e, Layer l)
@@ -423,6 +438,8 @@ namespace RapidQA
             if (imagesUpdated) return;
             ChangeImageFilepath(layer);
             SetLayerVisibility(layer);
+            layer.SelectedIndex = layer.Row.ComboBox.SelectedIndex;
+            MakeLayerSelected(layer);
         }
 
         private void Ckb_Lock_Click(object sender, RoutedEventArgs e, Layer layer)
@@ -553,23 +570,27 @@ namespace RapidQA
 
         private void MainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-
-            if (Keyboard.IsKeyDown(Key.Z))
+            foreach(Layer l in layers)
             {
-                snapping = true;
-            }
+                if (l.Row.Label.IsFocused) return;
 
-            if (Keyboard.IsKeyDown(Key.Q))
-            {
-                selectedLayer.Border.RenderTransform = new TranslateTransform(0, 0);
-                selectedLayer.CurrentTT = new TranslateTransform(0, 0);
-                SaveImagePosition();
-            }
+                if (Keyboard.IsKeyDown(Key.Z))
+                {
+                    snapping = true;
+                }
 
-            if (Keyboard.IsKeyDown(Key.I))
-            {
-                BtnInfo_Click(null, null);
-            }
+                if (Keyboard.IsKeyDown(Key.Q))
+                {
+                    selectedLayer.Border.RenderTransform = new TranslateTransform(0, 0);
+                    selectedLayer.CurrentTT = new TranslateTransform(0, 0);
+                    SaveImagePosition();
+                }
+
+                if (Keyboard.IsKeyDown(Key.I))
+                {
+                    BtnInfo_Click(null, null);
+                }
+            }          
 
             if (!Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.L))
             {
@@ -618,8 +639,7 @@ namespace RapidQA
                         selectedLayer.CurrentTT = new TranslateTransform(lastPos.X, lastPos.Y);
                         break;
 
-
-                    // Go forward => needs work
+                    // Go forward
                     case Key.Y:
                         if (Redo[selectedLayer].Count() == 0) return;
                         var count = Redo[selectedLayer].Count;
@@ -691,16 +711,15 @@ namespace RapidQA
                         break;
                 }
 
-                bool isFocused = false;
                 foreach (Layer l in layers)
                 {
-                    isFocused = l.Row.ComboBox.IsFocused;
+                    if (l.Row.ComboBox.IsFocused) return;
                 }
 
                 // nudgeing lenght
                 int pixels = 5;
 
-                if (selectedLayer.Border != null && !isFocused && !selectedLayer.IsLocked && selectedLayer.CurrentTT != null) // <= Not working
+                if (selectedLayer.Border != null && !selectedLayer.IsLocked && selectedLayer.CurrentTT != null) // <= Not working
                 {
                     if (Keyboard.IsKeyDown(Key.Left))
                     {
@@ -777,9 +796,49 @@ namespace RapidQA
             this.Width = 300;
             isExpanded = true;
         }
+
+        private void DeleteWindow()
+        {
+            Window window = new Window();
+            Button yes = new Button();
+            Button no = new Button();
+            window.Width = 200;
+            window.Height = 150;
+            window.Title = "Delete";
+            
+            // Ta bort minimera, maximera och ikon
+            window.ShowDialog(); // Fungerar men "varning" måste läggas till så att man märker att det inte går att klicka på något annat           
+            //window.Icon?
+            
+        }
         #endregion
 
         #region SAVE & LOAD
+
+        private void BtnCopyImage_Click(object sender, RoutedEventArgs e)
+        {
+            RenderTargetBitmap renderTarget = GridToRenderTargetBitmap(Workarea);
+            Image img = new Image();
+            img.Source = renderTarget;
+            BitmapSource bitmap = (BitmapSource)img.Source;
+
+            SwapClipboardImage(bitmap);
+        }
+
+        private void BtnCopyView_Click(object sender, RoutedEventArgs e)
+        {
+            RenderTargetBitmap renderTarget = GridToRenderTargetBitmap(ViewGrid);
+            Image img = new Image();
+            img.Source = renderTarget;
+            BitmapSource bitmap = (BitmapSource)img.Source;
+            SwapClipboardImage(bitmap);
+            Height += 1; 
+        }
+
+        public void SwapClipboardImage(BitmapSource replacementImage)
+        {
+            Clipboard.SetImage(replacementImage);
+        }
 
         OpenFileDialog openDlg = new Microsoft.Win32.OpenFileDialog();
         private List<Asset> SelectImages()
@@ -791,8 +850,8 @@ namespace RapidQA
             if (fileDirectory == null) openDlg.InitialDirectory = "c:\\";
             if (fileDirectory != null) openDlg.InitialDirectory = fileDirectory;
             openDlg.Multiselect = true;
-
-            bool? result = openDlg.ShowDialog(this);
+            
+            bool? result = openDlg.ShowDialog();
 
             string[] selectedFiles = openDlg.FileNames;
 
@@ -809,7 +868,6 @@ namespace RapidQA
                 fileDirectory = new FileInfo(assets[0].Filepath).Directory.FullName;
                 Log.AddInfo("Saved Directory " + fileDirectory);
             }
-
             return assets;
         }
 
@@ -822,8 +880,9 @@ namespace RapidQA
             {                             
                 System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(ViewGrid));
                 image.Save(dialog.FileName);
-                Log.AddSuccess("saved image - " + dialog.FileName);                
+                Log.AddSuccess("Saved image " + dialog.FileName);                
             }
+            Height += 1;
         }
 
         private SaveFileDialog OpenFileSaveDialog()
@@ -851,12 +910,13 @@ namespace RapidQA
                 {
                     System.Drawing.Image image = ConvertImage(GridToRenderTargetBitmap(Workarea));
                     image.Save(dialog.FileName);
-                    Log.AddSuccess("Saved image - " + dialog.FileName);
+                    Log.AddSuccess("Saved image " + dialog.FileName);
                     
                 }
                 catch (Exception ex)
                 {
                     Log.AddError($"Failed to save image. {ex.Message}" );
+                    EnableLog();
                 }               
             }
         }
@@ -898,63 +958,68 @@ namespace RapidQA
             return System.Drawing.Image.FromStream(ms);
         }
 
-
-        private void BtnLoad_Click(object sender, RoutedEventArgs e)
+        private void BtnLoadPreset_Click(object sender, RoutedEventArgs e)
         {
+            // If nothing has been changed
+            if (layers.Count == 1 && layers[0].Image == null && layers[0].Name == "Layer 1")
+            {
+                string file = SelectPresetToLoad();
+                if (file == "") return;
+                LoadLayerPositions(file);
+                Title = "RapidQA " + file;
+                return;
+            }
+
             MessageBoxResult result = MessageBox.Show(
-               "Save existing layers?",
-               "Save Layers?",
-               MessageBoxButton.YesNoCancel,
-               MessageBoxImage.Question,
-               MessageBoxResult.No);
+                "Save existing layers?",
+                "Save Layers?",
+                MessageBoxButton.YesNoCancel,
+                MessageBoxImage.Question,
+                MessageBoxResult.No);
 
             if (result == MessageBoxResult.Yes)
             {
-                BtnSave_Click(null, null);
-
-                OpenFileDialog dialog = new OpenFileDialog
-                {
-                    Filter = "XML files (*.xml)|*.xml",
-                };
-
-                if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
-                if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
-
-                // Add messagebox - Save (existing layers), Cancel, Continue 
-
-                bool? r = dialog.ShowDialog(this);
-                if (dialog.FileName == "") return;
-
-                LoadLayerPositions(dialog.FileName);
+                BtnSavePreset_Click(null, null);
+                string file = SelectPresetToLoad();
+                if (file == "") return;
+                LoadLayerPositions(file);
+                Title = "RapidQA " + file;
             }
 
             if (result == MessageBoxResult.No)
             {
-                OpenFileDialog dialog = new OpenFileDialog
-                {
-                    Filter = "XML files (*.xml)|*.xml",
-                };
-
-                if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
-                if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
-
-                // Add messagebox - Save (existing layers), Cancel, Continue 
-
-                bool? r = dialog.ShowDialog(this);
-                if (dialog.FileName == "") return;
-
-                LoadLayerPositions(dialog.FileName);
+                string file = SelectPresetToLoad();               
+                if (file == "") return;
+                LoadLayerPositions(file);
+                Title = "RapidQA " + file;
             }
+
+            Undo.Clear();
+            Redo.Clear();
         }
 
-        private void BtnSave_Click(object sender, RoutedEventArgs e)
+        private string SelectPresetToLoad()
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "XML files (*.xml)|*.xml",
+            };
+
+            if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
+            if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
+
+            dialog.ShowDialog(this);
+            return dialog.FileName;
+        }
+
+        private void BtnSavePreset_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
 
             if (fileDirectory == null) dialog.InitialDirectory = "c:\\";
             if (fileDirectory != null) dialog.InitialDirectory = fileDirectory;
 
-            dialog.Title = "Save layer positions";
+            dialog.Title = "Save presets";
 
             dialog.AddExtension = true;
 
@@ -966,12 +1031,13 @@ namespace RapidQA
             {
                 try
                 {
-                    SaveLayerPositions(dialog.FileName);
-                    Log.AddSuccess($"Saved layer positions - {dialog.FileName}");
+                    SavePresets(dialog.FileName);
+                    Log.AddSuccess($"Saved preset  {dialog.FileName}");
                 }
                 catch (Exception ex)
                 {
-                    Log.AddError($"Failed to save layer positions. {ex.Message}");
+                    Log.AddError($"Failed to save presets. {ex.Message}");
+                    EnableLog();
                 }
             }
         }
@@ -982,33 +1048,42 @@ namespace RapidQA
             {
                 var serializer = new XmlSerializer(typeof(List<Layer>));
 
-                var newlayers = serializer.Deserialize(stream) as List<Layer>;
-
-                foreach (Layer l in layers)
+                try
                 {
-                    DeleteLayer(l);
+                    var newlayers = serializer.Deserialize(stream) as List<Layer>;
+                    Log.AddInfo("Loaded " + fileName);
+
+                    foreach (Layer l in layers)
+                    {
+                        DeleteLayer(l);
+                    }
+
+                    layers.Clear();
+                    EnableWorkareaScaling();
+
+                    foreach (Layer l in newlayers)
+                    {
+                        layers.Add(l);
+                        AddLayer(l);
+                        row.AddRowComponents(l, l.Assets);
+                        ComboBox cb = l.Row.ComboBox;
+                        cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) { Cbx_SelectionChanged(s, ev, l); };
+                        AddImage(l);
+
+                        l.Border.RenderTransform = new TranslateTransform(l.CurrentTT.X, l.CurrentTT.Y);
+                    }
+
+                    MakeLayerSelected(newlayers.First());
                 }
-
-                layers.Clear();
-                EnableWorkareaScaling();
-
-                foreach (Layer l in newlayers)
+                catch (Exception ex)
                 {
-                    layers.Add(l);
-                    AddLayer(l);
-                    row.AddRowComponents(l, l.Assets);                    
-                    ComboBox cb = l.Row.ComboBox;
-                    cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) { Cbx_SelectionChanged(s, ev, l); };
-                    AddImage(l);
-
-                    l.Border.RenderTransform = new TranslateTransform(l.CurrentTT.X, l.CurrentTT.Y);
+                    Log.AddError($"Trouble loading preset. {ex.Message}");
+                    EnableLog();
                 }
-
-                MakeLayerSelected(newlayers.First());
-            }
+            }  
         }
 
-        public void SaveLayerPositions(string FileName)
+        public void SavePresets(string FileName)
         {
             using (var writer = new System.IO.StreamWriter(FileName))
             {
@@ -1183,6 +1258,7 @@ namespace RapidQA
 
         private void LayerImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            scrollViewer.Focus(); 
             if (selectedLayer.Image == null) return;
             foreach (var l in layers)
             {
@@ -1211,12 +1287,13 @@ namespace RapidQA
         private void SaveImagePosition()
         {
             Layer l = selectedLayer;
-            // Gets image position realtive to parent
+            // Gets image position relative to parent
             Point relativeLocation = selectedLayer.Border.TranslatePoint(new Point(0, 0), Workarea);
 
             var p = relativeLocation;
             if (Undo.ContainsKey(l))
             {
+                if (Undo[l].Last().Equals(p)) return;
                 Undo[l].Add(p);
             }
             else
@@ -1243,6 +1320,10 @@ namespace RapidQA
             var offsetX = (selectedLayer.CurrentTT == null ? selectedLayer.ImagePosition.X : selectedLayer.ImagePosition.X - selectedLayer.CurrentTT.X) + selectedLayer.DeltaX - mousePoint.X;
             var offsetY = (selectedLayer.CurrentTT == null ? selectedLayer.ImagePosition.Y : selectedLayer.ImagePosition.Y - selectedLayer.CurrentTT.Y) + selectedLayer.DeltaY - mousePoint.Y;
 
+            if (selectedLayer.CurrentTT == null)
+            {
+                selectedLayer.CurrentTT = new TranslateTransform(0, 0);
+            }
 
             if (moveXAxis)
             {
@@ -1254,10 +1335,10 @@ namespace RapidQA
             }
             if (snapping)
             {
-                var x = offsetX % 100;
+                var x = offsetX % 50;
                 var Xsnap = offsetX - x;
 
-                var y = offsetY % 100;
+                var y = offsetY % 50;
                 var Ysnap = offsetY - y;
 
                 selectedLayer.Border.RenderTransform = new TranslateTransform(-Xsnap, -Ysnap);
@@ -1273,6 +1354,10 @@ namespace RapidQA
         private void MakeLayerSelected(Layer layer)
         {
             selectedLayer = layer;
+            if (selectedLayer.CurrentTT == null)
+            {
+                selectedLayer.CurrentTT = new TranslateTransform(0,0);
+            }
 
             foreach (Layer l in layers)
             {
@@ -1280,11 +1365,9 @@ namespace RapidQA
                 {
                     l.Image.IsHitTestVisible = false;
                     l.Image.MouseLeave -= Image_MouseLeave;
-                    Zoom.MouseLeave -= LayerImage_MouseLeave;
-                    //l.Image.MouseUp -= LayerImage_MouseUp;
+                    Zoom.MouseLeave -= LayerImage_MouseLeave;      
                     Zoom.PreviewMouseUp -= PreviewLayerImage_MouseUp;
                     l.Image.MouseDown -= LayerImage_MouseDown;
-                    //Zoom.MouseDown -= LayerImage_MouseDown;
                     l.Image.MouseMove -= Image_MouseMove;
                     Zoom.PreviewMouseMove -= PreviewLayerImage_MouseMove;
 

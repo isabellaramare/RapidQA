@@ -17,6 +17,9 @@ C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Release\RapidQA.csproj.Generat
 C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Release\RapidQA.csproj.CopyComplete
 C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Release\QA.exe
 C:\Users\isabella.ramare\Documents\RapidQA\QA\obj\Release\QA.pdb
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\RapidQA.exe.config
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\RapidQA.exe
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\RapidQA.pdb
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\ImSystem.dll
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\ImUI.dll
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\System.Drawing.Common.dll
@@ -26,13 +29,10 @@ C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.csprojAss
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\MainWindow.baml
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\MainWindow.g.cs
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\App.g.cs
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.csproj.GenerateResource.cache
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.csproj.CopyComplete
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\RapidQA.exe.config
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\RapidQA.exe
-C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\bin\Release\RapidQA.pdb
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA_MarkupCompile.cache
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.g.resources
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.Properties.Resources.resources
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.csproj.GenerateResource.cache
+C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.csproj.CopyComplete
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.exe
 C:\Users\isabella.ramare\Documents\RapidQA\RapidQA\obj\Release\RapidQA.pdb

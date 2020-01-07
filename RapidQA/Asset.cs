@@ -25,7 +25,6 @@ namespace RapidQA
         // height
         public int XPosition { get; set; }
 
-
         public Asset()
         {
 

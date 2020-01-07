@@ -183,10 +183,10 @@
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="1" FontSize="8" Margin="0,-4,0,-4" Content="NAME" Foreground="WhiteSmoke"/>
-                    <Label Grid.Column="2" FontSize="8" Margin="0,-4,0,-4" Grid.ColumnSpan="2" Content="IMAGES" Foreground="WhiteSmoke" />
-                    <Label Grid.Column="4" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center" Foreground="WhiteSmoke">V</Label>
-                    <Label Grid.Column="5" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center" Foreground="WhiteSmoke">L</Label>
-                    <Label Grid.Column="6" FontSize="8" Margin="0,-4,0,-4" HorizontalContentAlignment="Center" Foreground="WhiteSmoke">D</Label>
+                    <Label Grid.Column="2" FontSize="8" Margin="0,-4,0,-4" Grid.ColumnSpan="2" Content="IMAGE" Foreground="WhiteSmoke" />
+                    <Image Grid.Column="4" Margin="0,-4,0,-4" Source="Visibility.png" MaxWidth="20"/>
+                    <Image Grid.Column="5" Margin="0,-4,0,-4" Source="Lock.png"  MaxWidth="20"/>
+                    <Image Grid.Column="6" Margin="0,-4,0,-4" Source="Delete.png" MaxWidth="20"/>
                 </Grid>
             </StackPanel>
             <Border x:Name="BorderInfo" CornerRadius="10"  Background="#CA343434" HorizontalAlignment="Right" Width="230" Margin="0,15,-248,200" Grid.RowSpan="2" Visibility="Collapsed">
@@ -234,13 +234,13 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="BtnSave"   
+                <Button x:Name="BtnSavePreset"   
                                 Grid.Column="0"
                                 Content="Save Preset"                                
                                 VerticalAlignment="Center" 
                                 MinWidth="80"
                                 MaxWidth="100"/>
-                <Button x:Name="BtnLoad"
+                <Button x:Name="BtnLoadPreset"
                                 Grid.Column="1"
                                 Content="Load Preset"                                
                                 VerticalAlignment="Center" 

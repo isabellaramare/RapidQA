@@ -75,7 +75,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Asset.cs" />
-    <Compile Include="ImageMerger.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -119,6 +118,11 @@
       <Project>{a340bfa4-239b-4823-a843-9ceb49a5e348}</Project>
       <Name>ImUI</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Delete.png" />
+    <Resource Include="Lock.png" />
+    <Resource Include="Visibility.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
