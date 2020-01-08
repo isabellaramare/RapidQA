@@ -64,7 +64,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DottedLineAdorner.cs" />
-    <Compile Include="MovingImage.cs" />
     <Compile Include="Row.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -76,7 +75,6 @@
     </Compile>
     <Compile Include="Asset.cs" />
     <Compile Include="Layer.cs" />
-    <Compile Include="MainViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -120,9 +118,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Delete.png" />
-    <Resource Include="Lock.png" />
-    <Resource Include="Visibility.png" />
+    <Resource Include="Icons\Delete.png" />
+    <Resource Include="Icons\Lock.png" />
+    <Resource Include="Icons\Visibility.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

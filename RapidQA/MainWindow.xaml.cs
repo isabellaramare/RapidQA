@@ -12,12 +12,8 @@ using Point = System.Windows.Point;
 using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
 using Microsoft.Win32;
-using System.Configuration;
-using System.Collections.Specialized;
 using ImSystem.Log;
 using System.Xml.Serialization;
-using System.Threading;
-using System.ComponentModel;
 using System.Windows.Documents;
 
 namespace RapidQA
@@ -44,17 +40,15 @@ namespace RapidQA
         // config file for automatic image-to-layer distribution https://support.microsoft.com/en-us/help/815786/how-to-store-and-retrieve-custom-information-from-an-application-confi                     
 
         // BUGS
-        // All layers show the name of the same image??? (andrea)
+        // ctrl + Z only works for selected layer
+        // It's not possible to edit an image that is open in RapidQA <= IMPORTANT
 
         // EXTRAS         
         // different colors for layers
         // Snapping => kinda works but the layers snap to different "grids"...   
         // Make several layers be selectable at once
         // Gridsplitter so that layerlabel can be scalable
-        // Center (customized) messageboxes
-
-        // QUESTIONS FOR USERS
-        // What function should be called for ctrl+S?
+        // save background color in preset
 
         public MainWindow()
         {
@@ -62,7 +56,7 @@ namespace RapidQA
             Log = LogWindow.Log;
             Log.AddInfo("Application loaded");
 
-       
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
             Workarea.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
 
@@ -102,7 +96,6 @@ namespace RapidQA
             this.Closed += MainWindow_Closed;
 
             scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-
         }
 
         private void AddEvents(Layer layer)
@@ -127,15 +120,14 @@ namespace RapidQA
             vis.Click += delegate (object sender, RoutedEventArgs e) 
             { Ckb_Visibility_Click(sender, e, layer); };
             del.Click += delegate (object sender, RoutedEventArgs e) 
-            { Btn_Delete_Click(sender, e, layer); };
-            lab.TextChanged += delegate (object sender, TextChangedEventArgs e) 
-            { Label_TextChanged(sender, e, layer); };
+            { Btn_Delete_Click(sender, e, layer); };           
+            lab.LostKeyboardFocus += delegate (object sender, KeyboardFocusChangedEventArgs e)
+            { Label_LostKeyboardFocus(sender, e, layer); };
         }
 
         private void Grid_Loaded(object sender, RoutedEventArgs e, Layer layer)
         {
             AdornerLayer.GetAdornerLayer(layer.Row.Grid).Add(new DottedLineAdorner(layer.Row.Drag));
-            DeleteWindow();
         }
 
         bool showInfo = false;
@@ -294,11 +286,6 @@ namespace RapidQA
             Undo.Clear();
         }
 
-        private void ClrPcker_Background_ColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
-        {
-            Workarea.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
-        }
-
         private void Btn_Delete_Click(object sender, RoutedEventArgs e, Layer layer)
         {
             MessageBoxResult result = MessageBox.Show(
@@ -318,6 +305,11 @@ namespace RapidQA
                 SetWorkareaWidth();
                 SetWorkareaHeight();
             }
+        }
+
+        private void ClrPcker_Background_ColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> e)
+        {
+            Workarea.Background = new SolidColorBrush(ClrPcker_Background.SelectedColor);
         }
        
         private void Btn_SelectImages_Click(object sender, RoutedEventArgs e, Layer layer)
@@ -359,14 +351,29 @@ namespace RapidQA
 
             layer.Border.Width = selectedLayer.Image.Source.Width;
             layer.Border.Height = selectedLayer.Image.Source.Height;
+            SetWorkareaHeight();
+            SetWorkareaWidth();
         }      
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
         {
             Layer layer = new Layer();
-            layers.Add(layer);
-            AddLayer(layer);
-            MakeLayerSelected(layer);
+            if (layers.Count >= 100)
+            {
+               MessageBoxResult result = MessageBox.Show(
+               "Can't add more layers.",
+               "Layer limit reached.",
+               MessageBoxButton.OK,
+               MessageBoxImage.Error,
+               MessageBoxResult.OK);
+               Log.AddError("Can't add more layers. Layer limit reached.");
+            }
+            else
+            {
+                layers.Add(layer);
+                AddLayer(layer);
+                MakeLayerSelected(layer);
+            }
         }
 
         private void AddLayer(Layer layer)
@@ -380,9 +387,10 @@ namespace RapidQA
             Log.AddInfo("Created " + layer.Name);       
         }
 
-        private void Label_TextChanged(object sender, TextChangedEventArgs e, Layer l)
+        private void Label_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e, Layer l)
         {
-            l.Name = l.Row.Label.Text;            
+            l.Row.Label.SelectionStart = 0;
+            l.Name = l.Row.Label.Text;
         }
 
         private void AddImage(Layer layer)
@@ -398,6 +406,13 @@ namespace RapidQA
             var uriSource = new Uri(selectedAsset.Filepath);
             image.Source = new BitmapImage(uriSource);
             image.Stretch = Stretch.None;
+
+            //System.Drawing.Image img = System.Drawing.Image.FromFile(selectedAsset.Filepath);
+            //using (MemoryStream stream = new MemoryStream())
+            //{
+            //    // Save image to stream.
+            //    img.Save(stream, ImageFormat.Bmp);
+            //}
 
             if (Workarea.Children.Count == 0)
             {
@@ -489,12 +504,12 @@ namespace RapidQA
         private void SetWorkareaWidth()
         {
             string text = workarea_width.Text;
-            double widest = 0;
-            double width = 0;
+            int widest = 0;
+            int width = 0;
 
             try
             {
-                width = double.Parse(text);
+                width = int.Parse(text);
             }
             catch (Exception ex)
             {
@@ -506,9 +521,14 @@ namespace RapidQA
                 if (l.Image == null) return;
                 if (l.Image.Source.Width > widest)
                 {
-                    widest = l.Image.Source.Width;
+                    double d = l.Image.Source.Width;
+                    int i = Convert.ToInt32(d);
+                    widest = i;
                 }
             }
+
+            if (width >= 50000) width = 50000;
+            if (widest >= 50000) widest = 50000;
 
             if (width <= widest || text == "" || text == null)
             {
@@ -519,18 +539,19 @@ namespace RapidQA
             if (width >= widest)
             {
                 Workarea.Width = width;
+                workarea_width.Text = width.ToString();
             }
         }
 
         private void SetWorkareaHeight()
         {
             string text = workarea_height.Text;
-            double highest = 0;
-            double height = 0;
+            int highest = 0;
+            int height = 0;
 
             try
             {
-                height = double.Parse(text);
+                height = int.Parse(text);
             }
             catch (Exception ex)
             {
@@ -542,9 +563,14 @@ namespace RapidQA
                 if (l.Image == null) return;
                 if (l.Image.Source.Height > highest)
                 {
-                    highest = l.Image.Source.Height;
+                    double d = l.Image.Source.Height;
+                    int i = Convert.ToInt32(d);
+                    highest = i;
                 }
             }
+
+            if (height >= 50000) height = 50000;
+            if (highest >= 50000) highest = 50000;
 
             if (height < highest || text == "" || text == null)
             {
@@ -554,7 +580,8 @@ namespace RapidQA
 
             if (height > highest)
             {
-                Workarea.Height = height;
+                Workarea.Height = height; 
+                workarea_height.Text = height.ToString();
             }
 
         }
@@ -797,24 +824,9 @@ namespace RapidQA
             isExpanded = true;
         }
 
-        private void DeleteWindow()
-        {
-            Window window = new Window();
-            Button yes = new Button();
-            Button no = new Button();
-            window.Width = 200;
-            window.Height = 150;
-            window.Title = "Delete";
-            
-            // Ta bort minimera, maximera och ikon
-            window.ShowDialog(); // Fungerar men "varning" måste läggas till så att man märker att det inte går att klicka på något annat           
-            //window.Icon?
-            
-        }
         #endregion
 
         #region SAVE & LOAD
-
         private void BtnCopyImage_Click(object sender, RoutedEventArgs e)
         {
             RenderTargetBitmap renderTarget = GridToRenderTargetBitmap(Workarea);
@@ -1350,7 +1362,6 @@ namespace RapidQA
         #endregion
 
         #region LAYER STACKING
-
         private void MakeLayerSelected(Layer layer)
         {
             selectedLayer = layer;
@@ -1532,7 +1543,7 @@ namespace RapidQA
                         if (layer.Equals(selectedLayer))
                         {
                             layers.Remove(layer);
-                            layers.Insert((droptargetIndex - 1), layer);
+                            layers.Insert(droptargetIndex, layer);
                             break;
                         }
                     }           
@@ -1540,7 +1551,7 @@ namespace RapidQA
                     if (selectedLayer.Image != null)
                     {
                         Workarea.Children.Remove(selectedLayer.Border);
-                        Workarea.Children.Insert((droptargetIndex - 1), selectedLayer.Border);
+                        Workarea.Children.Insert(droptargetIndex, selectedLayer.Border);
                     }
                 }
 

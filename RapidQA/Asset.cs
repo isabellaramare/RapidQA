@@ -43,9 +43,7 @@ namespace RapidQA
             foreach (var word in splt)
             {
                 Name += word + " ";
-            }
-
-            // insert config file to help sort the files
+            }         
 
 
             //PartType = splt[2];        

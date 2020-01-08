@@ -41,58 +41,71 @@ namespace RapidQA
             Button delete = new Button();
             Border drag = new Border();
 
+            GridSplitter splitter = new GridSplitter();
+
             for (int i = 0; i < 7; i++)
             {
-                ColumnDefinition column = new ColumnDefinition();
+                ColumnDefinition coldef = new ColumnDefinition();
 
                 switch (i)
                 {
                     case 0:
-                        column.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(column);
+                        coldef.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
                         break;
                     case 1:
-                        column.Width = new GridLength(2.5, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(column);
+                        coldef.Width = new GridLength(2.5, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
                         break;
+
                     case 2:
-                        column.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(column);
+                        coldef.Width = new GridLength(5, GridUnitType.Pixel); // Possibly some kind of problem with the drag/hover function
+                        grid.ColumnDefinitions.Add(coldef);
                         break;
+
                     case 3:
-                        column.Width = new GridLength(3.5, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(column);
+                        coldef.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
                         break;
                     case 4:
-                        column.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(column);
+                        coldef.Width = new GridLength(3.5, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
                         break;
                     case 5:
-                        column.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(column);
+                        coldef.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
                         break;
                     case 6:
-                        column.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(column);
+                        coldef.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
+                        break;
+                    case 7:
+                        coldef.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
                         break;
                 }
             }
 
-            grid.RowDefinitions.Add(new RowDefinition());
+            //grid.RowDefinitions.Add(new RowDefinition());
             grid.Margin = new Thickness(0, 5, 0, 5);
             grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
 
+            label.MaxLines = 1;
+            label.MinLines = 1;
+            label.MaxLength = 25;
             label.Text = "Layer " + layerCount;
 
             cbVis.IsChecked = true;
+            splitter.HorizontalAlignment = HorizontalAlignment.Stretch;
+            splitter.VerticalAlignment = VerticalAlignment.Stretch;
 
             drag.SetValue(Grid.ColumnProperty, 0);
             label.SetValue(Grid.ColumnProperty, 1);
-            button.SetValue(Grid.ColumnProperty, 2);
-
-            cbVis.SetValue(Grid.ColumnProperty, 4);
-            cbLock.SetValue(Grid.ColumnProperty, 5);
-            delete.SetValue(Grid.ColumnProperty, 6);
+            splitter.SetValue(Grid.ColumnProperty, 2);
+            button.SetValue(Grid.ColumnProperty, 3);
+            cbVis.SetValue(Grid.ColumnProperty, 5);
+            cbLock.SetValue(Grid.ColumnProperty, 6);
+            delete.SetValue(Grid.ColumnProperty, 7);
 
             label.VerticalAlignment = VerticalAlignment.Center;
             cbVis.VerticalAlignment = VerticalAlignment.Center;
