@@ -71,7 +71,7 @@ namespace RapidQA
             BtnLoadPreset.Click += BtnLoadPreset_Click;
             BtnInfo.Click += BtnInfo_Click;
             BtnExpand.Click += BtnExpand_Click;
-            Btn_DeleteAll.Click += Btn_DeleteAll_Click;
+            BtnDeleteAll.Click += Btn_DeleteAll_Click;
 
             Ckb_AllVisible.Click += Ckb_AllVisible_Click;
             Ckb_AllLocked.Click += Ckb_AllLocked_Click;
@@ -612,12 +612,12 @@ namespace RapidQA
                     snapping = true;
                 }
 
-                if (Keyboard.IsKeyDown(Key.Q))
-                {
-                    selectedLayer.Border.RenderTransform = new TranslateTransform(0, 0);
-                    selectedLayer.CurrentTT = new TranslateTransform(0, 0);
-                    SaveImagePosition();
-                }
+                //if (Keyboard.IsKeyDown(Key.Q))
+                //{
+                //    selectedLayer.Border.RenderTransform = new TranslateTransform(0, 0);
+                //    selectedLayer.CurrentTT = new TranslateTransform(0, 0);
+                //    SaveImagePosition();
+                //}
 
                 if (Keyboard.IsKeyDown(Key.I))
                 {
@@ -1567,5 +1567,22 @@ namespace RapidQA
             }
         }
         #endregion
+
+        private void BtnResetAll_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult result = MessageBox.Show(
+             "Reset all layer positions?",
+             "Reset all?",
+             MessageBoxButton.YesNo,
+             MessageBoxImage.Question,
+             MessageBoxResult.No);
+
+            foreach (Layer l in layers)
+            {
+                l.Border.RenderTransform = new TranslateTransform(0, 0);
+                l.CurrentTT = new TranslateTransform(0, 0);
+                SaveImagePosition();            
+            } 
+        }
     }
 }
