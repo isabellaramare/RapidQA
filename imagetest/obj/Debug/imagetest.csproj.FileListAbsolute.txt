@@ -1,0 +1,15 @@
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\bin\Debug\imagetest.exe.config
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\bin\Debug\imagetest.exe
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\bin\Debug\imagetest.pdb
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest.csprojAssemblyReference.cache
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\MainWindow.g.cs
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\App.g.cs
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest_MarkupCompile.cache
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest_MarkupCompile.lref
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\MainWindow.baml
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest.g.resources
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest.Properties.Resources.resources
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest.csproj.GenerateResource.cache
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest.exe
+C:\Users\isabella.ramare\Documents\RapidQA\imagetest\obj\Debug\imagetest.pdb

@@ -7,7 +7,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
-using System.Drawing;
 using Point = System.Windows.Point;
 using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
@@ -41,7 +40,6 @@ namespace RapidQA
 
         // BUGS
         // ctrl + Z only works for selected layer
-        // It's not possible to edit an image that is open in RapidQA <= IMPORTANT
 
         // EXTRAS         
         // different colors for layers
@@ -346,14 +344,29 @@ namespace RapidQA
         private void ChangeImageFilepath(Layer layer)
         {
             Asset selectedItem = (Asset)layer.Row.ComboBox.SelectedItem;
-            var uriSource = new Uri(selectedItem.Filepath);
-            layer.Image.Source = new BitmapImage(uriSource);
+            //var uriSource = new Uri(selectedItem.Filepath);
+            //layer.Image.Source = new BitmapImage(uriSource);
+            layer.Image.Source = GetBitmapImage(selectedItem.Filepath);
 
             layer.Border.Width = selectedLayer.Image.Source.Width;
             layer.Border.Height = selectedLayer.Image.Source.Height;
             SetWorkareaHeight();
             SetWorkareaWidth();
-        }      
+        }
+
+        private BitmapImage GetBitmapImage(string filepath)
+        {
+            var bitmap = new BitmapImage();
+            var stream = File.OpenRead(filepath);
+
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.StreamSource = stream;
+            bitmap.EndInit();
+            stream.Close();
+            stream.Dispose();
+            return bitmap;
+        }
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
         {
@@ -394,7 +407,7 @@ namespace RapidQA
         }
 
         private void AddImage(Layer layer)
-        {           
+        {
             if (layer.Image != null)
             {
                 Workarea.Children.Remove(layer.Border);
@@ -403,16 +416,9 @@ namespace RapidQA
             Border border = new Border();
             Asset selectedAsset = (Asset)layer.Row.ComboBox.SelectedItem;
             Image image = new Image();
-            var uriSource = new Uri(selectedAsset.Filepath);
-            image.Source = new BitmapImage(uriSource);
+            var bmp = GetBitmapImage(selectedAsset.Filepath);
+            image.Source = bmp;
             image.Stretch = Stretch.None;
-
-            //System.Drawing.Image img = System.Drawing.Image.FromFile(selectedAsset.Filepath);
-            //using (MemoryStream stream = new MemoryStream())
-            //{
-            //    // Save image to stream.
-            //    img.Save(stream, ImageFormat.Bmp);
-            //}
 
             if (Workarea.Children.Count == 0)
             {
@@ -641,7 +647,7 @@ namespace RapidQA
                 {
                     // Step back
                     case Key.Z:
-                        if (Undo[selectedLayer].Count() == 0) return;
+                        if (!Undo.ContainsKey(selectedLayer) || Undo[selectedLayer].Count() == 0) return;
                         var c = Undo[selectedLayer].Count;
 
                         // sends the last/current position to Redo
@@ -668,7 +674,7 @@ namespace RapidQA
 
                     // Go forward
                     case Key.Y:
-                        if (Redo[selectedLayer].Count() == 0) return;
+                        if (!Redo.ContainsKey(selectedLayer) || Redo[selectedLayer].Count() == 0) return;
                         var count = Redo[selectedLayer].Count;
                         var forUndo = Redo[selectedLayer].Last();
                         Undo[selectedLayer].Add(forUndo);
@@ -1305,7 +1311,7 @@ namespace RapidQA
             var p = relativeLocation;
             if (Undo.ContainsKey(l))
             {
-                if (Undo[l].Last().Equals(p)) return;
+                if (Undo[l].Count < 1 || Undo[l].Last().Equals(p)) return;
                 Undo[l].Add(p);
             }
             else

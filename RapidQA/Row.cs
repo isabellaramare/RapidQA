@@ -41,8 +41,6 @@ namespace RapidQA
             Button delete = new Button();
             Border drag = new Border();
 
-            GridSplitter splitter = new GridSplitter();
-
             for (int i = 0; i < 7; i++)
             {
                 ColumnDefinition coldef = new ColumnDefinition();
@@ -57,18 +55,16 @@ namespace RapidQA
                         coldef.Width = new GridLength(2.5, GridUnitType.Star);
                         grid.ColumnDefinitions.Add(coldef);
                         break;
-
                     case 2:
-                        coldef.Width = new GridLength(5, GridUnitType.Pixel); // Possibly some kind of problem with the drag/hover function
-                        grid.ColumnDefinitions.Add(coldef);
-                        break;
-
-                    case 3:
                         coldef.Width = new GridLength(1, GridUnitType.Star);
                         grid.ColumnDefinitions.Add(coldef);
                         break;
-                    case 4:
+                    case 3:
                         coldef.Width = new GridLength(3.5, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef);
+                        break;
+                    case 4:
+                        coldef.Width = new GridLength(1, GridUnitType.Star);
                         grid.ColumnDefinitions.Add(coldef);
                         break;
                     case 5:
@@ -79,14 +75,9 @@ namespace RapidQA
                         coldef.Width = new GridLength(1, GridUnitType.Star);
                         grid.ColumnDefinitions.Add(coldef);
                         break;
-                    case 7:
-                        coldef.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
-                        break;
                 }
             }
 
-            //grid.RowDefinitions.Add(new RowDefinition());
             grid.Margin = new Thickness(0, 5, 0, 5);
             grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
 
@@ -96,16 +87,13 @@ namespace RapidQA
             label.Text = "Layer " + layerCount;
 
             cbVis.IsChecked = true;
-            splitter.HorizontalAlignment = HorizontalAlignment.Stretch;
-            splitter.VerticalAlignment = VerticalAlignment.Stretch;
 
             drag.SetValue(Grid.ColumnProperty, 0);
             label.SetValue(Grid.ColumnProperty, 1);
-            splitter.SetValue(Grid.ColumnProperty, 2);
-            button.SetValue(Grid.ColumnProperty, 3);
-            cbVis.SetValue(Grid.ColumnProperty, 5);
-            cbLock.SetValue(Grid.ColumnProperty, 6);
-            delete.SetValue(Grid.ColumnProperty, 7);
+            button.SetValue(Grid.ColumnProperty, 2);
+            cbVis.SetValue(Grid.ColumnProperty, 4);
+            cbLock.SetValue(Grid.ColumnProperty, 5);
+            delete.SetValue(Grid.ColumnProperty, 6);
 
             label.VerticalAlignment = VerticalAlignment.Center;
             cbVis.VerticalAlignment = VerticalAlignment.Center;
@@ -129,8 +117,6 @@ namespace RapidQA
             delete.Content = "X";                                
             delete.Padding = new Thickness(0, -2, 0, 0);
 
-            //drag.Width = 14;
-            //drag.Height = 14;
             drag.Margin = new Thickness(6,6,4,4);
 
             grid.Children.Add(label);
