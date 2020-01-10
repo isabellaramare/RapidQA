@@ -384,13 +384,19 @@ namespace RapidQA
             else
             {
                 layers.Add(layer);
-                AddLayer(layer);
+                CreateLayer(layer);
                 MakeLayerSelected(layer);
             }
         }
 
-        private void AddLayer(Layer layer)
+        private void CreateLayer(Layer layer)
         {
+            //string gridXaml = XamlWriter.Save(RowBorder);
+            //StringReader stringReader = new StringReader(gridXaml);
+            //XmlReader xmlReader = XmlReader.Create(stringReader);
+            //Border newRowBorder = (Border)XamlReader.Load(xmlReader);
+            //sp.Children.Add(newRowBorder);
+
             Row newRow = row.CreateNewRow(layers.Count);
             sp.Children.Add(newRow.Grid);
             layer.Row = newRow;
@@ -1082,7 +1088,7 @@ namespace RapidQA
                     foreach (Layer l in newlayers)
                     {
                         layers.Add(l);
-                        AddLayer(l);
+                        CreateLayer(l);
                         row.AddRowComponents(l, l.Assets);
                         ComboBox cb = l.Row.ComboBox;
                         cb.SelectionChanged += delegate (object s, SelectionChangedEventArgs ev) { Cbx_SelectionChanged(s, ev, l); };

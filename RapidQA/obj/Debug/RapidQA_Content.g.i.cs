@@ -8,8 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("delete.png")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("lock.png")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("visibility.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icons/row.png")]
 
 
