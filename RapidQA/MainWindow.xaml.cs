@@ -14,6 +14,7 @@ using Microsoft.Win32;
 using ImSystem.Log;
 using System.Xml.Serialization;
 using System.Windows.Documents;
+using System.Collections.ObjectModel;
 
 namespace RapidQA
 {
@@ -23,7 +24,7 @@ namespace RapidQA
     public partial class MainWindow : Window
     {
         public Log Log { get; set; }
-        List<Layer> layers = new List<Layer>();
+        ObservableCollection<Layer> layers = new ObservableCollection<Layer>();
         Dictionary<Layer, List<Point>> Undo = new Dictionary<Layer, List<Point>>();
         Dictionary<Layer, List<Point>> Redo = new Dictionary<Layer, List<Point>>();
         Row row = new Row();
@@ -52,7 +53,7 @@ namespace RapidQA
         {
             InitializeComponent();        
             Log = LogWindow.Log;
-            Log.AddInfo("Application loaded");
+            Log.AddInfo("Application loaded");           
 
             this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -61,7 +62,7 @@ namespace RapidQA
             BtnAddLayer_Click(null, null);
             workarea_width.IsEnabled = false;
             workarea_height.IsEnabled = false;
-            
+
             BtnAddLayer.Click += BtnAddLayer_Click;
             BtnSaveImage.Click += BtnSaveImage_Click;
             BtnSaveView.Click += BtnSaveView_Click;
@@ -125,7 +126,10 @@ namespace RapidQA
 
         private void Grid_Loaded(object sender, RoutedEventArgs e, Layer layer)
         {
-            AdornerLayer.GetAdornerLayer(layer.Row.Grid).Add(new DottedLineAdorner(layer.Row.Drag));
+            var adorner = AdornerLayer.GetAdornerLayer(layer.Row.Grid);
+            DottedLineAdorner dottedLine = new DottedLineAdorner(layer.Row.Drag);
+            dottedLine.IsHitTestVisible = false;
+            adorner.Add(dottedLine);
         }
 
         bool showInfo = false;
@@ -255,7 +259,7 @@ namespace RapidQA
             }
         }
 
-        internal void DeleteLayer(Layer layer)
+        private void DeleteLayer(Layer layer)
         {
             string layerName = layer.Row.Label.Text.ToString();           
             
@@ -286,6 +290,8 @@ namespace RapidQA
 
         private void Btn_Delete_Click(object sender, RoutedEventArgs e, Layer layer)
         {
+            if (layer is null) return;
+
             MessageBoxResult result = MessageBox.Show(
                 "Delete this layer?", 
                 "Delete Layer", 
@@ -297,6 +303,11 @@ namespace RapidQA
             
             if (result == MessageBoxResult.Yes)
             {                
+                if (layer.Equals(selectedLayer))
+                {
+                    selectedLayer = null;
+                }
+
                 DeleteLayer(layer);
                 layers.Remove(layer);
                 EnableWorkareaScaling();
@@ -314,7 +325,7 @@ namespace RapidQA
         {
             if (layer.Image is null)
             {
-                List<Asset> assets = SelectImages();
+                ObservableCollection<Asset> assets = SelectImages();
                 if (assets.Count > 0)
                 {
                     row.AddRowComponents(layer, assets);
@@ -328,7 +339,7 @@ namespace RapidQA
             else
             {
                 imagesUpdated = true;
-                List<Asset> assets = SelectImages();
+                ObservableCollection<Asset> assets = SelectImages();
                 if (assets.Count > 0)
                 {
                     layer.Assets = assets;
@@ -348,8 +359,8 @@ namespace RapidQA
             //layer.Image.Source = new BitmapImage(uriSource);
             layer.Image.Source = GetBitmapImage(selectedItem.Filepath);
 
-            layer.Border.Width = selectedLayer.Image.Source.Width;
-            layer.Border.Height = selectedLayer.Image.Source.Height;
+            //layer.Border.Width = selectedLayer.Image.Source.Width;
+            //layer.Border.Height = selectedLayer.Image.Source.Height;
             SetWorkareaHeight();
             SetWorkareaWidth();
         }
@@ -426,13 +437,11 @@ namespace RapidQA
             image.Source = bmp;
             image.Stretch = Stretch.None;
 
-            if (Workarea.Children.Count == 0)
+            for (int i = 0; i < 100; i++)
             {
-                for (int i = 0; i <= 100; i++)
-                {
-                    Workarea.Children.Add(new UIElement());
-                }
-            }
+                if (Workarea.Children.Count >= 100) break;
+                Workarea.Children.Add(new UIElement());
+            }            
 
             border.BorderBrush = new SolidColorBrush(Colors.Aqua);
             layer.Border = border;
@@ -618,6 +627,7 @@ namespace RapidQA
                     snapping = true;
                 }
 
+                // Resets layer position (to 0,0)
                 //if (Keyboard.IsKeyDown(Key.Q))
                 //{
                 //    selectedLayer.Border.RenderTransform = new TranslateTransform(0, 0);
@@ -629,9 +639,9 @@ namespace RapidQA
                 {
                     BtnInfo_Click(null, null);
                 }
-            }          
+            }
 
-            if (!Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.L))
+            if (!Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.L) && !Keyboard.IsKeyDown(Key.LeftAlt))
             {
                 if ((bool)CkbToggleLog.IsChecked) CkbToggleLog.IsChecked = false;
                 else CkbToggleLog.IsChecked = true;
@@ -758,6 +768,8 @@ namespace RapidQA
                 // nudgeing lenght
                 int pixels = 5;
 
+                if (selectedLayer is null) return;
+
                 if (selectedLayer.Border != null && !selectedLayer.IsLocked && selectedLayer.CurrentTT != null) // <= Not working
                 {
                     if (Keyboard.IsKeyDown(Key.Left))
@@ -865,7 +877,7 @@ namespace RapidQA
         }
 
         OpenFileDialog openDlg = new Microsoft.Win32.OpenFileDialog();
-        private List<Asset> SelectImages()
+        private ObservableCollection<Asset> SelectImages()
         {
             // Get the image files from the user.
             var openDlg = new Microsoft.Win32.OpenFileDialog();
@@ -879,7 +891,7 @@ namespace RapidQA
 
             string[] selectedFiles = openDlg.FileNames;
 
-            List<Asset> assets = new List<Asset>();
+            ObservableCollection<Asset> assets = new ObservableCollection<Asset>();
             foreach (string filepath in selectedFiles)
             {
                 assets.Add(new Asset(filepath));
@@ -1426,8 +1438,8 @@ namespace RapidQA
         }
 
         private void RowMoveArea_MouseLeave(object sender, MouseEventArgs e, Layer layer)
-        {
-            if (selectedLayer.Equals(layer))
+        {           
+            if (layer.Equals(selectedLayer))
             {
                 layer.Row.Grid.Background = new LinearGradientBrush(
                     Color.FromArgb(100, 119, 119, 119),
@@ -1443,7 +1455,7 @@ namespace RapidQA
         }
 
         private void RowMoveArea_MouseMove(object sender, MouseEventArgs e, Layer layer)
-        {
+        {           
             double x = e.GetPosition(layer.Row.Grid).X;
             double start = 0.0;
             int column = 0;
@@ -1507,6 +1519,7 @@ namespace RapidQA
 
         private void Sp_MouseMove(object sender, MouseEventArgs e)
         {
+            if (selectedLayer is null) return;
             // Drag and drop
             if (selectedLayer.Row.IsDown)
             {

@@ -27,8 +27,14 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
     </Window.Resources>
-    <Grid x:Name="MainGrid">
+
+  
+
+        <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.1*" MinWidth="5" MaxWidth="400"/>
             <ColumnDefinition Width="3"/>
@@ -160,8 +166,7 @@
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="25"/>
                 <RowDefinition/>
-                <RowDefinition Height="50"/>
-                <RowDefinition Height="40"/>
+                <RowDefinition Height="90"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Vertical">
                 <Label Margin="0" Content="Quality Assurance" Grid.Column="0" Background="#FF202020" Height="30" VerticalContentAlignment="Center" Padding="10,0" FontSize="18" FontWeight="Bold" Foreground="WhiteSmoke"/>
@@ -188,7 +193,6 @@
                 <Grid Margin="-0.5,0,-0.5,0"  Grid.Column="6" Background="#FF777777">
                     <Image Margin="0,-4,0,-4" Source="Icons/Delete.png" MaxWidth="20"/>
                 </Grid>
-
             </Grid>
             <Grid Grid.Row="2">
                 <ScrollViewer x:Name="scrollViewer">
@@ -217,54 +221,46 @@
                 </ScrollViewer>
             </Grid>
 
-            <StackPanel Grid.Row="3" Margin="10,0,10,0">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
-                    <CheckBox x:Name="Ckb_AllVisible" Margin="10,0,0,0" Grid.Column="0" Content="Show all"/>
-                    <CheckBox x:Name="Ckb_AllLocked" Margin="10,0,0,0" Grid.Column="1" Content="Lock all"/>
-                </Grid>
-                <Grid Margin="0,10,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+            <Grid Grid.Row="3" Margin="0,7,0,15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel HorizontalAlignment="Center" Grid.Column="0" Margin="10,0,0,0">
+                    <CheckBox x:Name="Ckb_AllVisible" Grid.Column="0" Content="_Show all"/>
                     <Button x:Name="BtnDeleteAll"   
                                 Grid.Column="0"
                                 Content="_Delete All"                                
-                                VerticalAlignment="Center" 
+                                VerticalAlignment="Center"
+                                Margin="0,5,0,0"
                                 MinWidth="80"
-                                MaxWidth="100"/>
+                                MaxWidth="120"/>
+                    <Button x:Name="BtnSavePreset"   
+                                Grid.Column="0"
+                                Content="Save Preset"                                
+                                VerticalAlignment="Center" 
+                                Margin="0,5,0,0"
+                                MinWidth="80"
+                                MaxWidth="120"/>
+                </StackPanel>
+                <StackPanel HorizontalAlignment="Center" Grid.Column="1" Margin="0,0,10,0">
+                    <CheckBox x:Name="Ckb_AllLocked" Grid.Column="1" Content="_Lock all"/>
                     <Button x:Name="BtnResetAll"
                                 Grid.Column="1"
                                 Content="_Reset All"                                
                                 VerticalAlignment="Center" 
+                                Margin="0,5,0,0"
                                 MinWidth="80"
-                                MaxWidth="100"
+                                MaxWidth="120"
                                 Click="BtnResetAll_Click"/>
-                </Grid>
-            </StackPanel>
-
-            <Grid Grid.Row="4" Margin="10,0,10,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="13*"/>
-                    <ColumnDefinition Width="46*"/>
-                    <ColumnDefinition Width="59*"/>
-                </Grid.ColumnDefinitions>
-                <Button x:Name="BtnSavePreset"   
-                                Grid.Column="0"
-                                Content="Save Preset"                                
-                                VerticalAlignment="Center" 
-                                MinWidth="80"
-                                MaxWidth="100" Grid.ColumnSpan="2"/>
-                <Button x:Name="BtnLoadPreset"
+                    <Button x:Name="BtnLoadPreset"
                                 Grid.Column="2"
                                 Content="Load Preset"                                
                                 VerticalAlignment="Center" 
+                                Margin="0,5,0,0"
                                 MinWidth="80"
-                                MaxWidth="100"/>
+                                MaxWidth="120"/>
+                </StackPanel>
             </Grid>
         </Grid>
         <GridSplitter x:Name="Splitter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="1" Grid.RowSpan="2" Background="#FF202020"/>

@@ -21,8 +21,8 @@ namespace RapidQA
         protected override void OnRender(DrawingContext drawingContext)
         {
             Size eltSize = (AdornedElement as FrameworkElement).DesiredSize;
-            Pen pen = new Pen(Brushes.Gray, 3.2) { DashStyle = DashStyles.Dot };
-            Rect rect = new Rect(new Size(0,16));
+            Pen pen = new Pen(Brushes.Gray, 3) { DashStyle = DashStyles.Dot };
+            Rect rect = new Rect(new Size(0,18));
             drawingContext.DrawRectangle(null, pen, rect);
         }
     }

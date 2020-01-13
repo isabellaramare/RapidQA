@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,7 +13,6 @@ namespace RapidQA
     {
         public bool IsLocked { get; set; }
         public string Name { get; set; }
-
         
         // Layer moving
         public bool IsMoving { get; set; }
@@ -28,14 +28,13 @@ namespace RapidQA
         [XmlIgnore]
         public Border Border { get; set; }
 
-        public List<Asset> Assets { get; set; } = new List<Asset>();
+        public ObservableCollection<Asset> Assets { get; set; } = new ObservableCollection<Asset>();
         public int SelectedIndex { get; set; }
  
         public Layer()
         {
             Row = new Row();
             CurrentTT = new TranslateTransform(0, 0);
-            //SelectedIndex = 0;
         }
     }
 }

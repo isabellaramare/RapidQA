@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -22,6 +23,8 @@ namespace RapidQA
         public Button Button { get; set; }
         public Button Delete { get; set; }
         public Border Drag { get; set; }
+        public Grid ButtonGrid { get; set; }
+
 
         public Row()
         {
@@ -40,45 +43,42 @@ namespace RapidQA
             Button button = new Button();
             Button delete = new Button();
             Border drag = new Border();
+            Grid buttonGrid = new Grid();
 
             for (int i = 0; i < 7; i++)
             {
-                ColumnDefinition coldef = new ColumnDefinition();
+                ColumnDefinition coldef1 = new ColumnDefinition();
 
                 switch (i)
                 {
                     case 0:
-                        coldef.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
+                        coldef1.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef1);
                         break;
                     case 1:
-                        coldef.Width = new GridLength(2.5, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
+                        coldef1.Width = new GridLength(2.5, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef1);
                         break;
                     case 2:
-                        coldef.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
+                        coldef1.Width = new GridLength(4, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef1);
                         break;
                     case 3:
-                        coldef.Width = new GridLength(3.5, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
+                        coldef1.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef1);
                         break;
                     case 4:
-                        coldef.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
+                        coldef1.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef1);
                         break;
                     case 5:
-                        coldef.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
-                        break;
-                    case 6:
-                        coldef.Width = new GridLength(1, GridUnitType.Star);
-                        grid.ColumnDefinitions.Add(coldef);
+                        coldef1.Width = new GridLength(1, GridUnitType.Star);
+                        grid.ColumnDefinitions.Add(coldef1);
                         break;
                 }
             }
 
-            grid.Margin = new Thickness(0, 5, 0, 5);
+            grid.Height = 30;
             grid.Background = new SolidColorBrush(Color.FromArgb(100, 221, 221, 221));
 
             label.MaxLines = 1;
@@ -87,19 +87,27 @@ namespace RapidQA
             label.Text = "Layer " + layerCount;
 
             cbVis.IsChecked = true;
+            ColumnDefinition coldef2 = new ColumnDefinition();
+            coldef2.Width = new GridLength(20, GridUnitType.Pixel);
+            buttonGrid.ColumnDefinitions.Add(coldef2);
+
+            ColumnDefinition coldef3 = new ColumnDefinition();
+            coldef3.Width = new GridLength(3, GridUnitType.Star);
+            buttonGrid.ColumnDefinitions.Add(coldef3);
+            button.SetValue(Grid.ColumnProperty, 0);
 
             drag.SetValue(Grid.ColumnProperty, 0);
             label.SetValue(Grid.ColumnProperty, 1);
-            button.SetValue(Grid.ColumnProperty, 2);
-            cbVis.SetValue(Grid.ColumnProperty, 4);
-            cbLock.SetValue(Grid.ColumnProperty, 5);
-            delete.SetValue(Grid.ColumnProperty, 6);
+            buttonGrid.SetValue(Grid.ColumnProperty, 2);
+            cbVis.SetValue(Grid.ColumnProperty, 3);
+            cbLock.SetValue(Grid.ColumnProperty, 4);
+            delete.SetValue(Grid.ColumnProperty, 5);
 
             label.VerticalAlignment = VerticalAlignment.Center;
             cbVis.VerticalAlignment = VerticalAlignment.Center;
             cbLock.VerticalAlignment = VerticalAlignment.Center;
 
-            button.HorizontalAlignment = HorizontalAlignment.Stretch;
+            button.HorizontalAlignment = HorizontalAlignment.Left;
             cbVis.HorizontalAlignment = HorizontalAlignment.Center;
             cbLock.HorizontalAlignment = HorizontalAlignment.Center;
             cbVis.IsEnabled = false;
@@ -108,19 +116,24 @@ namespace RapidQA
             label.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
             label.BorderBrush = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
 
-            button.Margin = new Thickness(0, 2, 0, 2);
+            button.Width = 85;
+            button.Margin = new Thickness(0,4,4,4);
             button.SetValue(Grid.ColumnSpanProperty, 2);
-            button.Content = "Select Images...";
-                         
+            button.Content = "Select Images";
+            button.Padding = new Thickness(4,0,4,0);
+            button.BorderBrush = new SolidColorBrush(Color.FromArgb(100, 130, 130, 130));
+            button.Background = new SolidColorBrush(Colors.WhiteSmoke);
+
             delete.Width = 14;
             delete.Height = 14;
             delete.Content = "X";                                
             delete.Padding = new Thickness(0, -2, 0, 0);
 
             drag.Margin = new Thickness(6,6,4,4);
+            buttonGrid.Children.Add(button);
 
             grid.Children.Add(label);
-            grid.Children.Add(button);
+            grid.Children.Add(buttonGrid);
             grid.Children.Add(cbVis);
             grid.Children.Add(cbLock);
             grid.Children.Add(delete);
@@ -131,6 +144,7 @@ namespace RapidQA
             newRow.CBVisibility = cbVis;
             newRow.CBLock = cbLock;
             newRow.Button = button;
+            newRow.ButtonGrid = buttonGrid;
             newRow.Delete = delete;
             newRow.Label = label;
             newRow.Drag = drag;
@@ -138,27 +152,29 @@ namespace RapidQA
             return newRow;
         }
 
-        public void AddRowComponents(Layer layer, List<Asset> assets)
+        public void AddRowComponents(Layer layer, ObservableCollection<Asset> assets)
         {
-            // Add combobox to Row
             ComboBox combobox = new ComboBox();
-            combobox.SetValue(Grid.ColumnProperty, 3);
             combobox.VerticalAlignment = VerticalAlignment.Center;
-            combobox.HorizontalAlignment = HorizontalAlignment.Left;
-            combobox.Margin = new Thickness(0, 0, 0, 0);
+            combobox.HorizontalAlignment = HorizontalAlignment.Stretch;
+            combobox.SetValue(Grid.ColumnProperty, 1);
+            combobox.Margin = new Thickness(0, 0, 5, 0);
+            combobox.BorderBrush = new SolidColorBrush(Color.FromArgb(100, 130, 130, 130));
+            combobox.Background = new SolidColorBrush(Colors.WhiteSmoke);
             combobox.ItemsSource = assets;
-            layer.Row.Grid.Children.Add(combobox);
+            //layer.Row.Grid.Children.Add(combobox);
             layer.Row.ComboBox = combobox;
             if (layer.SelectedIndex > 0) layer.Row.ComboBox.SelectedIndex = layer.SelectedIndex;
             else layer.Row.ComboBox.SelectedIndex = 0;
+            layer.Row.ButtonGrid.Children.Add(combobox);
 
-            // Adjust button and Checkboxes
             Button btn = layer.Row.Button;
             btn.Content = "...";
+            btn.Margin = new Thickness(0);
             btn.Width = 20;
-            btn.Height = 20;
+            btn.Height = 22;
             btn.HorizontalAlignment = HorizontalAlignment.Left;
-            btn.HorizontalContentAlignment = HorizontalAlignment.Center;
+            //btn.HorizontalContentAlignment = HorizontalAlignment.Center;
 
             layer.Row.CBVisibility.RenderTransformOrigin = new Point(3.14, 0.461);
             layer.Row.CBVisibility.IsEnabled = true;
