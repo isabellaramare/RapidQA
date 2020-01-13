@@ -158,7 +158,7 @@
                 <log:LogTextBox x:Name="LogWindow"/>
             </Grid>
         </Grid>
-        <Border x:Name="BorderInfo" CornerRadius="10"  Background="#CA343434" HorizontalAlignment="Right" Width="230" Margin="0,15,-248,200" Grid.RowSpan="2" Visibility="Collapsed">
+        <Border x:Name="BorderInfo" CornerRadius="10"  Background="#CA343434" HorizontalAlignment="Right" Width="230" Margin="0,15,-248,200" Grid.RowSpan="2" Visibility="Collapsed" Panel.ZIndex="2">
             <TextBlock x:Name="TxtInfo" Padding="12" Foreground="White" TextWrapping="Wrap" LineHeight="20"/>
         </Border>
         <Grid x:Name="GrdMenu" Grid.Column="0" Grid.Row="1" Background="#FF777777">
