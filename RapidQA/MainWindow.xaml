@@ -32,9 +32,7 @@
         </Style>
     </Window.Resources>
 
-  
-
-        <Grid x:Name="MainGrid">
+    <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.1*" MinWidth="5" MaxWidth="400"/>
             <ColumnDefinition Width="3"/>
@@ -185,13 +183,13 @@
                 <Label Background="#FF777777" Margin="0,0,0,-2" Grid.Column="1" FontSize="10"  Content="NAME" Foreground="WhiteSmoke"/>
                 <Label Background="#FF777777" Margin="0,0,0,-2" Grid.Column="2" FontSize="10" Grid.ColumnSpan="2" Content="IMAGE" Foreground="WhiteSmoke" />
                 <Grid Grid.Column="4" Background="#FF777777">
-                    <Image Margin="0,-4,0,-4" Source="Icons/Visibility.png" MaxWidth="20"/>
+                    <Image Margin="0,-4,0,-4" Source="Icons/Visibility.png" MaxWidth="20" SnapsToDevicePixels="True"/>
                 </Grid>
                 <Grid Grid.Column="5" Background="#FF777777">
-                    <Image Margin="0,-4,0,-4" Source="Icons/Lock.png"  MaxWidth="20"/>
+                    <Image Margin="0,-4,0,-4" Source="Icons/Lock.png"  MaxWidth="20" SnapsToDevicePixels="True"/>
                 </Grid>
                 <Grid Margin="-0.5,0,-0.5,0"  Grid.Column="6" Background="#FF777777">
-                    <Image Margin="0,-4,0,-4" Source="Icons/Delete.png" MaxWidth="20"/>
+                    <Image Margin="0,-4,0,-4" Source="Icons/Delete.png" MaxWidth="20" SnapsToDevicePixels="True"/>
                 </Grid>
             </Grid>
             <Grid Grid.Row="2">

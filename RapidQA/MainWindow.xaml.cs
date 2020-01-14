@@ -15,6 +15,8 @@ using ImSystem.Log;
 using System.Xml.Serialization;
 using System.Windows.Documents;
 using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace RapidQA
 {
@@ -36,18 +38,19 @@ namespace RapidQA
         private bool moveYAxis;
         private bool snapping = false;
 
-        // HIGH PRIORITY
-        // config file for automatic image-to-layer distribution https://support.microsoft.com/en-us/help/815786/how-to-store-and-retrieve-custom-information-from-an-application-confi                     
+                          
 
-        // BUGS
-        // ctrl + Z only works for selected layer
-
-        // EXTRAS         
+        // NOTES (things to add)         
         // different colors for layers
         // Snapping => kinda works but the layers snap to different "grids"...   
         // Make several layers be selectable at once
         // Gridsplitter so that layerlabel can be scalable
         // save background color in preset
+        
+        // ctrl + Z only works for selected layer
+
+        // BUGS
+        // when using the kitchen images, they (counters vs taps) are shown with different size (even though they have the same dimensions)
 
         public MainWindow()
         {
@@ -365,7 +368,7 @@ namespace RapidQA
             SetWorkareaWidth();
         }
 
-        private BitmapImage GetBitmapImage(string filepath)
+        private BitmapSource GetBitmapImage(string filepath)
         {
             var bitmap = new BitmapImage();
             var stream = File.OpenRead(filepath);
@@ -376,7 +379,18 @@ namespace RapidQA
             bitmap.EndInit();
             stream.Close();
             stream.Dispose();
-            return bitmap;
+
+            double dpi = 96;
+            int width = bitmap.PixelWidth;
+            int height = bitmap.PixelHeight;
+
+            int stride = width * 4; // 4 bytes per pixel
+            byte[] pixelData = new byte[stride * height];
+            bitmap.CopyPixels(pixelData, stride, 0);
+
+            BitmapSource bmpSource = BitmapSource.Create(width, height, dpi, dpi, PixelFormats.Bgra32, null, pixelData, stride);
+
+            return bmpSource;
         }
 
         private void BtnAddLayer_Click(object sender, RoutedEventArgs e)
@@ -433,7 +447,8 @@ namespace RapidQA
             Border border = new Border();
             Asset selectedAsset = (Asset)layer.Row.ComboBox.SelectedItem;
             Image image = new Image();
-            var bmp = GetBitmapImage(selectedAsset.Filepath);
+            BitmapSource bmp = GetBitmapImage(selectedAsset.Filepath);    
+
             image.Source = bmp;
             image.Stretch = Stretch.None;
 
@@ -500,25 +515,23 @@ namespace RapidQA
         #region WORKAREA
         private void EnableWorkareaScaling()
         {
-            bool hasImage = false;
+            
             foreach (Layer l in layers)
             {
-                if (l.Image != null) hasImage = true;
-            }
-
-            if (hasImage)
-            {
-                workarea_height.IsEnabled = true;
-                workarea_width.IsEnabled = true;
-            }
-            else
-            {
-                workarea_height.Text = "0";
-                workarea_width.Text = "0";
-                Workarea.Height = 0;
-                Workarea.Width = 0;
-                workarea_height.IsEnabled = false;
-                workarea_width.IsEnabled = false;
+                if (l.Image != null)
+                {
+                    workarea_height.IsEnabled = true;
+                    workarea_width.IsEnabled = true;
+                }
+                else
+                {
+                    workarea_height.Text = "0";
+                    workarea_width.Text = "0";
+                    Workarea.Height = 0;
+                    Workarea.Width = 0;
+                    workarea_height.IsEnabled = false;
+                    workarea_width.IsEnabled = false;
+                }               
             }
         }
 
@@ -539,6 +552,8 @@ namespace RapidQA
 
             foreach (Layer l in layers)
             {
+                               
+
                 if (l.Image == null) return;
                 if (l.Image.Source.Width > widest)
                 {
@@ -563,6 +578,8 @@ namespace RapidQA
                 workarea_width.Text = width.ToString();
             }
         }
+
+
 
         private void SetWorkareaHeight()
         {
@@ -1281,7 +1298,7 @@ namespace RapidQA
         #region LAYER MOVING
         private void LayerImage_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (selectedLayer.Image == null) return;
+            if (selectedLayer == null || selectedLayer.Image == null) return;
             selectedLayer.CurrentTT = selectedLayer.Border.RenderTransform as TranslateTransform;
             selectedLayer.IsMoving = false;
         }
@@ -1294,8 +1311,8 @@ namespace RapidQA
 
         private void LayerImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            scrollViewer.Focus(); 
-            if (selectedLayer.Image == null) return;
+            scrollViewer.Focus();
+            if (selectedLayer == null || selectedLayer.Image == null) return;
             foreach (var l in layers)
             {
                 if (l.Image != null) l.Image.IsHitTestVisible = false;
@@ -1313,7 +1330,7 @@ namespace RapidQA
 
         private void PreviewLayerImage_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (selectedLayer.Image == null) return;
+            if (selectedLayer == null || selectedLayer.Image == null) return;
             selectedLayer.CurrentTT = selectedLayer.Border.RenderTransform as TranslateTransform;
             selectedLayer.IsMoving = false;
 
@@ -1347,7 +1364,7 @@ namespace RapidQA
 
         private void PreviewLayerImage_MouseMove(object sender, MouseEventArgs e)
         {
-            if (selectedLayer.Image == null) return;
+            if (selectedLayer == null || selectedLayer.Image == null) return;
             if (!selectedLayer.IsMoving) return;
             if (selectedLayer.IsLocked) return;
                
